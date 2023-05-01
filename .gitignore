@@ -1,0 +1,9 @@
+.vs/
+*.csproj
+Temp/
+ProjectSettings/
+Logs/
+Library/
+obj/
+.vsconfig
+TweenProject.sln
