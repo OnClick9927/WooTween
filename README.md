@@ -1,2 +1,2 @@
 # WooTween
-WooTween
+Tween easy
