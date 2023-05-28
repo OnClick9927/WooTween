@@ -2,15 +2,17 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using WooPool;
+
 namespace WooTween
 {
     public static partial class TweenEx
     {
-        public static ITween SetRecyle(this ITween tween, bool rec)
+        public static ITween SetRecycle(this ITween tween, bool rec)
         {
             if (tween.recyled)
                 throw new Exception("The Tween Has Been Recyled,Do not Do anything On it");
-            tween.autoRecyle = rec;
+            tween.autoRecycle = rec;
             return tween;
         }
         public static ITween OnCompelete(this ITween tween, Action onCompelete)
@@ -85,7 +87,7 @@ namespace WooTween
         }
         public static ITween SetAutoRecyle(this ITween tween,bool auto)
         {
-            tween.autoRecyle = auto;
+            tween.autoRecycle = auto;
             return tween;
         }
 

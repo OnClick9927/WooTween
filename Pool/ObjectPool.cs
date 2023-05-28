@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WooTween
+namespace WooPool
 {
+
     /// <summary>
     /// 基础对象池
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class ObjectPool<T> :  IDisposable, IObjectPool
+    public abstract class ObjectPool<T> : PoolUnit, IDisposable, IObjectPool
     {
         /// <summary>
         /// 数据容器
@@ -32,9 +33,9 @@ namespace WooTween
         /// <summary>
         /// 释放时
         /// </summary>
-        public void Dispose()
+        protected override void OnDispose()
         {
-            Clear();
+            Clear(null);
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace WooTween
         /// </summary>
         /// <param name="arg"></param>
         /// <returns></returns>
-        public virtual T Get()
+        public virtual T Get(IPoolArgs arg = null)
         {
             lock (para)
             {
@@ -53,10 +54,12 @@ namespace WooTween
                 }
                 else
                 {
-                    t = CreatNew();
-                    OnCreate(t);
+                    t = CreateNew(arg);
+                    OnCreate(t, arg);
+                    (t as IPoolObject)?.OnAllocate();
                 }
-                OnGet(t);
+                OnGet(t, arg);
+                (t as IPoolObject)?.OnGet();
                 return t;
             }
         }
@@ -65,28 +68,35 @@ namespace WooTween
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        public void Set(object obj)
+        public bool Set(object obj, IPoolArgs args)
         {
             if (obj is T)
             {
-                Set((T)obj);
+                return Set((T)obj, args);
             }
+            return false;
         }
+        protected void RealSet(T t, IPoolArgs arg = null)
+        {
+            pool.Enqueue(t);
+            (t as IPoolObject)?.OnSet();
+        }
+
         /// <summary>
         /// 回收
         /// </summary>
         /// <param name="t"></param>
         /// <param name="arg"></param>
         /// <returns></returns>
-        public virtual bool Set(T t)
+        public virtual bool Set(T t, IPoolArgs arg = null)
         {
             lock (para)
             {
                 if (!pool.Contains(t))
                 {
-                    if (OnSet(t))
+                    if (OnSet(t, arg))
                     {
-                        pool.Enqueue(t);
+                        RealSet(t, arg);
                     }
                     return true;
                 }
@@ -101,17 +111,15 @@ namespace WooTween
         /// 清除
         /// </summary>
         /// <param name="arg"></param>
-        public void Clear()
+        public void Clear(IPoolArgs arg = null)
         {
             lock (para)
             {
                 while (pool.Count > 0)
                 {
                     var t = pool.Dequeue();
-                    OnClear(t);
-                    IDisposable dispose = t as IDisposable;
-                    if (dispose != null)
-                        dispose.Dispose();
+                    OnClear(t, arg);
+                    (t as IDisposable)?.Dispose();
                 }
             }
         }
@@ -120,7 +128,7 @@ namespace WooTween
         /// </summary>
         /// <param name="count"></param>
         /// <param name="arg"></param>
-        public void Clear(int count)
+        public void Clear(int count, IPoolArgs arg = null)
         {
             lock (para)
             {
@@ -128,7 +136,7 @@ namespace WooTween
                 while (pool.Count > count)
                 {
                     var t = pool.Dequeue();
-                    OnClear(t);
+                    OnClear(t, arg);
                 }
             }
         }
@@ -137,20 +145,20 @@ namespace WooTween
         /// </summary>
         /// <param name="arg"></param>
         /// <returns></returns>
-        protected abstract T CreatNew();
+        protected abstract T CreateNew(IPoolArgs arg);
         /// <summary>
         /// 数据被清除时
         /// </summary>
         /// <param name="t"></param>
         /// <param name="arg"></param>
-        protected virtual void OnClear(T t) { }
+        protected virtual void OnClear(T t, IPoolArgs arg) { }
         /// <summary>
         /// 数据被回收时，返回true可以回收
         /// </summary>
         /// <param name="t"></param>
         /// <param name="arg"></param>
         /// <returns></returns>
-        protected virtual bool OnSet(T t)
+        protected virtual bool OnSet(T t, IPoolArgs arg)
         {
             return true;
         }
@@ -159,12 +167,12 @@ namespace WooTween
         /// </summary>
         /// <param name="t"></param>
         /// <param name="arg"></param>
-        protected virtual void OnGet(T t) { }
+        protected virtual void OnGet(T t, IPoolArgs arg) { }
         /// <summary>
         /// 数据被创建时
         /// </summary>
         /// <param name="t"></param>
         /// <param name="arg"></param>
-        protected virtual void OnCreate(T t) { }
+        protected virtual void OnCreate(T t, IPoolArgs arg) { }
     }
 }

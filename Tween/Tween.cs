@@ -5,17 +5,31 @@ namespace WooTween
 {
     public abstract class Tween : TweenObject, ITween
     {
-        private bool _autoRecyle = true;
+       
+        
         private TweenDirection _direction = TweenDirection.Forward;
+        
         public TweenDirection direction { get { return _direction; } protected set { _direction = value; } }
 
         public event Action onCompelete;
+        
         public float duration;
-        public bool autoRecyle { get { return _autoRecyle; }set { _autoRecyle = value; } }
+        
+        private bool _autoRecycle = true;
+        public bool autoRecycle
+        {
+            get => _autoRecycle;
+            set => _autoRecycle = value;
+        }
+
         public bool snap { get; set; }
+        
         public LoopType loopType { get; set; }
+        
         public abstract int loop { get; set; }
+        
         protected static IPercentConverter defaultConverter = EaseCoverter.Default;
+        
         public abstract IPercentConverter converter { get; set; }
 
 
@@ -24,7 +38,7 @@ namespace WooTween
         public abstract void Rewind(float duration,bool snap=false);
         public abstract void Complete(bool invoke);
 
-        protected void InvokeCompelete()
+        protected void InvokeComplete()
         {
             if (onCompelete!=null)
             {
@@ -42,7 +56,7 @@ namespace WooTween
             var last = this.converter;
             this.converter = converter;
             if (last != null && last != defaultConverter)
-                last.Recyle();
+                last.Recycle();
             return this;
         }
         public void WaitToRun()

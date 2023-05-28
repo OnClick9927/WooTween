@@ -33,7 +33,7 @@ namespace WooTween
             {
                 var tv = queue.Dequeue();
                 tweens.Remove(tv);
-                tv.Recyle();
+                tv.Recycle();
             }
             for (int i = tweens.Count - 1; i >= 0; i--)
             {

@@ -47,7 +47,7 @@ namespace IFramework_Demo
             tc = cube.DoMove(cube.transform.position + Vector3.right * 5, 2, false)
                   .SetLoop(4, LoopType.PingPong)
                   .SetAnimationCurve(curve)
-                  .SetRecyle(false)
+                  .SetRecycle(false)
                   .OnCompelete(() =>
                   {
                       Debug.Log(Time.time);

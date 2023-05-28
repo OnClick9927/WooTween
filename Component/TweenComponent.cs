@@ -34,7 +34,7 @@ namespace WooTween
         }
         protected virtual void OnTweenComplete()
         {
-            if (tween.autoRecyle)
+            if (tween.autoRecycle)
             {
                 tween = null;
             }
@@ -52,7 +52,7 @@ namespace WooTween
                 case TweenType.Single:
                     tween = TweenEx.DoGoto<T>(start, end, duration, GetTargetValue, SetTargetValue, snap)
                         .SetLoop(loop, LoopType)
-                        .SetRecyle(autoRcyle)
+                        .SetRecycle(autoRcyle)
                         .OnCompelete(OnTweenComplete);
                     if (curve != null)
                     {
@@ -62,7 +62,7 @@ namespace WooTween
                 case TweenType.Array:
                     tween = TweenEx.DoGoto<T>(array, duration, GetTargetValue, SetTargetValue, snap)
                         .SetLoop(loop, LoopType)
-                        .SetRecyle(autoRcyle)
+                        .SetRecycle(autoRcyle)
                         .OnCompelete(OnTweenComplete);
                     if (curve != null)
                     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WooTween
+namespace WooPool
 {
     /// <summary>
     /// 对象池接口
@@ -19,6 +19,6 @@ namespace WooTween
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        void Set(object obj);
+        bool Set(object obj,IPoolArgs args);
     }
 }

@@ -7,7 +7,7 @@ namespace WooTween
         bool recyled { get; }
         IPercentConverter converter { get; set; }
         int loop { get; set; }
-        bool autoRecyle { get; set; }
+        bool autoRecycle { get; set; }
         LoopType loopType { get; set; }
         bool snap { get; set; }
         void Complete(bool invoke);

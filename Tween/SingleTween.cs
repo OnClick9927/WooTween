@@ -19,18 +19,12 @@ namespace WooTween
 
         public override int loop
         {
-            get
-            {
-                return _loop;
-            }
-            set
-            {
-                _loop = value;
-            }
+            get => _loop;
+            set => _loop = value;
         }
         public override IPercentConverter converter
         {
-            get { return _converter; }
+            get => _converter;
             set
             {
                 _converter = value;
@@ -89,7 +83,7 @@ namespace WooTween
             current_loop--;
             if (loop != -1 && current_loop <= 0)
             {
-                InvokeCompelete();
+                InvokeComplete();
                 RecyleSelf();
             }
             else
@@ -118,7 +112,7 @@ namespace WooTween
         public override void Complete(bool invoke)
         {
             direction = TweenDirection.Forward;
-            if (invoke) InvokeCompelete();
+            if (invoke) InvokeComplete();
             RecyleSelf();
         }
         public override void Rewind(float duration, bool snap = false)
@@ -141,10 +135,10 @@ namespace WooTween
             _start = _end = default(T);
             duration = 0;
             _loop = 1;
-            autoRecyle = true;
+            autoRecycle = true;
             if (_converter != defaultConverter)
             {
-                _converter.Recyle();
+                _converter.Recycle();
                 _converter = defaultConverter;
             }
             loopType = LoopType.ReStart;
@@ -155,9 +149,9 @@ namespace WooTween
         private void RecyleSelf()
         {
             UnbindTweenValue();
-            if (autoRecyle)
+            if (autoRecycle)
             {
-                Recyle();
+                Recycle();
             }
         }
         private void UnbindTweenValue()

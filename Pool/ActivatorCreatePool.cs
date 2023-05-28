@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WooTween
+namespace WooPool
 {
     /// <summary>
     /// Activator 创建实例 对现池
@@ -22,10 +22,10 @@ namespace WooTween
         /// </summary>
         /// <param name="arg"></param>
         /// <returns></returns>
-        protected override T CreatNew()
+        protected override T CreateNew(IPoolArgs arg)
         {
             Type type = typeof(T);
-            return (T)Activator.CreateInstance(type);
+            return (T)Activator.CreateInstance(type, args);
         }
     }
 }
