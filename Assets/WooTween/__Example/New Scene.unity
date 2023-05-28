@@ -230,7 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targets: []
   autoPlay: 1
-  duration: 10
+  duration: 2
   snap: 0
   type: 0
   start: {x: 2, y: 1, z: 5}
@@ -248,6 +248,15 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
+    - serializedVersion: 3
+      time: 0.632686
+      value: 0.40029162
+      inSlope: -6.0241966
+      outSlope: -6.0241966
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.12654203
     - serializedVersion: 3
       time: 1
       value: 1
