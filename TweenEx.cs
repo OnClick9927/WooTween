@@ -15,11 +15,11 @@ namespace WooTween
             tween.autoRecycle = rec;
             return tween;
         }
-        public static ITween OnCompelete(this ITween tween, Action onCompelete)
+        public static ITween OnComplete(this ITween tween, Action onComplete)
         {
             if (tween.recyled)
                 throw new Exception("The Tween Has Been Recyled,Do not Do anything On it");
-            (tween as Tween).onCompelete += onCompelete;
+            (tween as Tween).onComplete += onComplete;
             return tween;
         }
         public static ITween SetLoop(this ITween tween, int loop, LoopType loopType)

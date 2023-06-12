@@ -39,7 +39,7 @@ namespace WooTween
             {
                 var tv = tweens[i];
                 tv.Update();
-                if (tv.compelete)
+                if (tv.complete)
                 {
                     queue.Enqueue(tv);
                 }

@@ -21,10 +21,10 @@ namespace WooTween
             throw new Exception(string.Format("Do not Have TweenValue<{0}>  with Type {0}", typeof(T)));
         }
 
-        public bool compelete { get { return _compelete; } }
+        public bool complete { get { return _complete; } }
         private IPercentConverter _converter = EaseCoverter.Default;
         private float _time;
-        protected event Action onCompelete;
+        protected event Action onComplete;
         protected float percent { get { return (Mathf.Clamp01((_time) / duration)); } }
         protected float convertPercent { get { return _converter.Convert(percent, _time, duration); } }
         protected float deltaPercent { get { return delta + (1 - delta) * percent; } }
@@ -35,13 +35,13 @@ namespace WooTween
         public static float delta = 0.618f;
         public static float deltaTime = 0.02f;
         public static float timeScale = 1;
-        protected bool _compelete;
+        protected bool _complete;
 
         protected abstract void MoveNext();
         protected override void Reset()
         {
-            _compelete = false;
-            onCompelete = null;
+            _complete = false;
+            onComplete = null;
             _time = 0;
             _converter = EaseCoverter.Default;
         }
@@ -54,23 +54,23 @@ namespace WooTween
 
         public void Update()
         {
-            if (recyled ||_compelete) return;
+            if (recyled ||_complete) return;
             _time += deltaTime * timeScale;
 
             if (_time >= duration)
             {
-                OnCompelete();
+                OnComplete();
             }
             else
             {
                 MoveNext();
             }
         }
-        protected virtual void OnCompelete()
+        protected virtual void OnComplete()
         {
-            if (onCompelete != null)
-                onCompelete();
-            _compelete = true;
+            if (onComplete != null)
+                onComplete();
+            _complete = true;
         }
 
     }
@@ -108,21 +108,21 @@ namespace WooTween
             _current = default(T);
         }
 
-        public void Config(IPlugin<T> plugin, Action onCompelete)
+        public void Config(IPlugin<T> plugin, Action onComplete)
         {
             this._plugin = plugin;
             this._current = plugin.start;
-            this.onCompelete += onCompelete;
+            this.onComplete += onComplete;
         }
         public void ResetPlugin()
         {
             _plugin = null;
-            _compelete = true;
+            _complete = true;
         }
-        protected override void OnCompelete()
+        protected override void OnComplete()
         {
             SetCurrent(end);
-            base.OnCompelete();
+            base.OnComplete();
         }
 
        
