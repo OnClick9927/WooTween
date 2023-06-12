@@ -11,7 +11,7 @@ namespace WooTween
         
         public TweenDirection direction { get { return _direction; } protected set { _direction = value; } }
 
-        public event Action onCompelete;
+        public event Action onComplete;
         
         public float duration;
         
@@ -40,15 +40,15 @@ namespace WooTween
 
         protected void InvokeComplete()
         {
-            if (onCompelete!=null)
+            if (onComplete!=null)
             {
-                onCompelete.Invoke();
+                onComplete.Invoke();
             }
         }
         protected override void Reset()
         {
             snap = false;
-            onCompelete = null;
+            onComplete = null;
         }
 
         public ITween SetConverter(IPercentConverter converter)

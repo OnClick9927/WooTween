@@ -48,7 +48,7 @@ namespace IFramework_Demo
                   .SetLoop(4, LoopType.PingPong)
                   .SetAnimationCurve(curve)
                   .SetRecycle(false)
-                  .OnCompelete(() =>
+                  .OnComplete(() =>
                   {
                       Debug.Log(Time.time);
                   })
