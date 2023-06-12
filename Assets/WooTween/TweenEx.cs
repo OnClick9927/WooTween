@@ -515,6 +515,112 @@ namespace WooTween
             }, snap);
         }
 
+        
+        //相机
+        public static ITween<float> DoFieldOfView(this Camera target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.fieldOfView, value, duration, () => { return target.fieldOfView; },
+                (value) => { target.fieldOfView = value; }, snap);
+        }
+
+        public static ITween<float> DoFarClipPlane(this Camera target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.farClipPlane, value, duration, () => { return target.farClipPlane; },
+                (value) => { target.farClipPlane = value; }, snap);
+        }
+
+        public static ITween<float> DoNearClipPlane(this Camera target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.nearClipPlane, value, duration, () => { return target.nearClipPlane; },
+                (value) => { target.nearClipPlane = value; }, snap);
+        }
+
+        public static ITween<float> DoOrthoSize(this Camera target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.orthographicSize, value, duration, () => { return target.orthographicSize; },
+                (value) => { target.orthographicSize = value; }, snap);
+        }
+
+        public static ITween<Rect> DoPixelRect(this Camera target, Rect value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.pixelRect, value, duration, () => { return target.pixelRect; },
+                (value) => { target.pixelRect = value; }, snap);
+        }
+        public static ITween<Rect> DoRect(this Camera target, Rect value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.rect, value, duration, () => { return target.rect; },
+                (value) => { target.rect = value; }, snap);
+        }
+        
+        
+        //灯光
+        public static ITween<float> DoIntensity(this Light target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.intensity, value, duration, () => { return target.intensity; },
+                (value) => { target.intensity = value; }, snap);
+        }
+
+        public static ITween<float> DoShowStrength(this Light target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.shadowStrength, value, duration, () => { return target.shadowStrength; },
+                (value) => { target.shadowStrength = value; }, snap);
+        }
+        
+
+        
+        //材质
+        public static ITween<Vector2> DOOffset(this Material target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.mainTextureOffset, value, duration, () => { return target.mainTextureOffset; },
+                (value) => { target.mainTextureOffset = value; }, snap);
+        }
+        public static ITween<Vector2> DOTiling(this Material target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.mainTextureScale, value, duration, () => { return target.mainTextureScale; },
+                (value) => { target.mainTextureScale = value; }, snap);
+        }
+  
+        
+        //UI
+        
+      
+        public static ITween<Color> DoColor(this Image target, Color value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.color, value, duration, () => { return target.color; },
+                (value) => { target.color = value; }, snap);
+        }
+        
+        public static ITween<float> DoAlpha(this Image target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.color.a, value, duration, () => { return target.color.a; },
+                (value) => { target.color = new Color(target.color.r,target.color.g,target.color.b,value); }, snap);
+        }
+
+        
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
