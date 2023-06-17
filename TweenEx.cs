@@ -72,14 +72,14 @@ namespace WooTween
 
 
 
-        public static IArrayTween<T> AllocateArrayTween<T>(EnvironmentType env) where T : struct
+        private static IArrayTween<T> AllocateArrayTween<T>(EnvironmentType env) where T : struct
         {
             if (env != EnvironmentType.Editor)
                 TweenSingleton.Initialized();
 
             return TweenObject.Allocate<ArrayTween<T>>(env);
         }
-        public static ISingleTween<T> AllocateSingleTween<T>(EnvironmentType env) where T : struct
+        private static ISingleTween<T> AllocateSingleTween<T>(EnvironmentType env) where T : struct
         {
             if (env != EnvironmentType.Editor)
                 TweenSingleton.Initialized();
@@ -604,8 +604,15 @@ namespace WooTween
         public static ITween<float> DoAlpha(this Image target, float value, float duration, bool snap = false)
         {
 
-            return DoGoto(target.color.a, value, duration, () => { return target.color.a; },
-                (value) => { target.color = new Color(target.color.r,target.color.g,target.color.b,value); }, snap);
+            return DoGoto(target.color.a, value, duration, 
+                () =>
+                {
+                    return target.color.a;
+                },
+                (value) =>
+                {
+                    target.color = new Color(target.color.r,target.color.g,target.color.b,value);
+                }, snap);
         }
 
         
