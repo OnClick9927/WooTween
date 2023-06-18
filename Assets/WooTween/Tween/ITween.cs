@@ -4,7 +4,7 @@ namespace WooTween
 {
     public interface ITween
     {
-        bool recyled { get; }
+        bool recycled { get; }
         IPercentConverter converter { get; set; }
         int loop { get; set; }
         bool autoRecycle { get; set; }
