@@ -10,21 +10,21 @@ namespace WooTween
     {
         public static ITween SetRecycle(this ITween tween, bool rec)
         {
-            if (tween.recyled)
+            if (tween.recycled)
                 throw new Exception("The Tween Has Been Recyled,Do not Do anything On it");
             tween.autoRecycle = rec;
             return tween;
         }
         public static ITween OnComplete(this ITween tween, Action onComplete)
         {
-            if (tween.recyled)
+            if (tween.recycled)
                 throw new Exception("The Tween Has Been Recyled,Do not Do anything On it");
             (tween as Tween).onComplete += onComplete;
             return tween;
         }
         public static ITween SetLoop(this ITween tween, int loop, LoopType loopType)
         {
-            if (tween.recyled)
+            if (tween.recycled)
                 throw new Exception("The Tween Has Been Recyled,Do not Do anything On it");
             tween.loop = loop;
             tween.loopType = loopType;

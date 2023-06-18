@@ -54,7 +54,7 @@ namespace WooTween
 
         public void Update()
         {
-            if (recyled ||_complete) return;
+            if (recycled ||_complete) return;
             _time += deltaTime * timeScale;
 
             if (_time >= duration)

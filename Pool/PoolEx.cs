@@ -22,7 +22,7 @@ namespace WooPool
 
             }
         }
-        static private GPool gPool = new GPool();
+         private static GPool gPool = new GPool();
 
         /// <summary>
         /// 获取全局对象池数量
@@ -61,7 +61,7 @@ namespace WooPool
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <param name="arg"></param>
-        public static void GlobalRecyle<T>(T t, IPoolArgs arg = null) where T : class
+        public static void GlobalRecycle<T>(T t, IPoolArgs arg = null) where T : class
         {
             gPool.Set(t, arg);
         }

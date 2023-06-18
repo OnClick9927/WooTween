@@ -8,7 +8,7 @@ namespace WooTween
         protected EnvironmentType envType;
         private bool _recyled = true;
 
-        public bool recyled => _recyled;
+        public bool recycled => _recyled;
 
         public static T Allocate<T>(EnvironmentType envType) where T : TweenObject
         {
@@ -20,10 +20,10 @@ namespace WooTween
         protected abstract void Reset();
         public void Recycle()
         {
-            if (recyled) return;
+            if (recycled) return;
             Reset();
             _recyled = true;
-            PoolEx.GlobalRecyle(this);
+            PoolEx.GlobalRecycle(this);
         }
     }
 }
