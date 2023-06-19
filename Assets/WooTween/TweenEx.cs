@@ -516,7 +516,7 @@ namespace WooTween
         }
 
         
-        //相机
+        //相机  后期添加晃动
         public static ITween<float> DoFieldOfView(this Camera target, float value, float duration, bool snap = false)
         {
 
@@ -559,7 +559,9 @@ namespace WooTween
         }
         
         
-        //灯光
+        
+        
+        //灯光 后期添加DOBlendableColor 
         public static ITween<float> DoIntensity(this Light target, float value, float duration, bool snap = false)
         {
 
@@ -577,19 +579,21 @@ namespace WooTween
 
         
         //材质
-        public static ITween<Vector2> DOOffset(this Material target, Vector2 value, float duration, bool snap = false)
+        public static ITween<Vector2> DoOffset(this Material target, Vector2 value, float duration, bool snap = false)
         {
 
             return DoGoto(target.mainTextureOffset, value, duration, () => { return target.mainTextureOffset; },
                 (value) => { target.mainTextureOffset = value; }, snap);
         }
-        public static ITween<Vector2> DOTiling(this Material target, Vector2 value, float duration, bool snap = false)
+        public static ITween<Vector2> DoTiling(this Material target, Vector2 value, float duration, bool snap = false)
         {
 
             return DoGoto(target.mainTextureScale, value, duration, () => { return target.mainTextureScale; },
                 (value) => { target.mainTextureScale = value; }, snap);
         }
   
+        
+        
         
         //UI
         
@@ -615,6 +619,155 @@ namespace WooTween
                 }, snap);
         }
 
+       
+        
+        //Audio
+        
+        public static ITween<float> DoFade(this AudioSource target, float value, float duration, bool snap = false)
+        {
+
+            if (value < 0) value = 0;
+            else if (value > 1) value = 1;
+            return DoGoto(target.volume, value, duration, () => target.volume,
+                (value) => { target.volume = value; }, snap);
+        }
+        public static ITween<float> DoPitch(this AudioSource target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.pitch, value, duration, () => target.pitch,
+                (value) => { target.pitch = value; }, snap);
+        }
+        
+        
+        //刚体
+        public static ITween<Vector3> DoMove(this Rigidbody target, Vector3 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.position, value, duration, () => target.position,
+                (value) => { target.position = value; }, snap);
+        }
+
+        public static ITween<float> DoMoveX(this Rigidbody target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.position.x, value, duration, () => target.position.x,
+                (value) => { target.position = new Vector3(value,target.position.y,target.position.z); }, snap);
+        }
+        public static ITween<float> DoMoveY(this Rigidbody target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.position.y, value, duration, () => target.position.y,
+                (value) => { target.position = new Vector3(target.position.x,value,target.position.z); }, snap);
+        }
+
+        public static ITween<float> DoMoveZ(this Rigidbody target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.position.z, value, duration, () => target.position.z,
+                (value) => { target.position = new Vector3(target.position.x, target.position.y, value); }, snap);
+        }
+
+        public static ITween<Quaternion> DoRotate(this Rigidbody target, Quaternion value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.rotation, value, duration, () => target.rotation,
+                (value) => { target.rotation = value; }, snap);
+        }
+        
+        public static ITween<Vector3> DoRotate(this Rigidbody target, Vector3 value, float duration, bool snap = false)
+        {
+            return DoGoto(target.rotation.eulerAngles, value, duration, () => { return target.rotation.eulerAngles; }, (value) => {
+                target.rotation = Quaternion.Euler(value);
+            }, snap);
+        }
+        
+        //刚体2D
+        
+        public static ITween<Vector2> DoMove(this Rigidbody2D target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.position, value, duration, () => target.position,
+                (value) => { target.position = value; }, snap);
+        }
+
+        public static ITween<float> DoMoveX(this Rigidbody2D target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.position.x, value, duration, () => target.position.x,
+                (value) => { target.position = new Vector3(value,target.position.y); }, snap);
+        }
+        public static ITween<float> DoMoveY(this Rigidbody2D target, float value, float duration, bool snap = false)
+        {
+            return DoGoto(target.position.y, value, duration, () => target.position.y,
+                (value) => { target.position = new Vector3(target.position.x,value); }, snap);
+        }
+
+
+        public static ITween<float> DoRotate(this Rigidbody2D target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.rotation, value, duration, () => target.rotation,
+                (value) => { target.rotation = value; }, snap);
+        }
+        
+        //SpriteRenderer
+        public static ITween<Color> DoColor(this SpriteRenderer target, Color value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.color, value, duration, () => target.color,
+                (value) => { target.color = value; }, snap);
+        }
+        public static ITween<float> DoFade(this SpriteRenderer target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.color.a, value, duration, () => target.color.a,
+                (value) => { target.color = new Color(target.color.r, target.color.g, target.color.b, value); }, snap);
+        }
+        
+        
+        //LayoutElement
+        public static ITween<Vector2> DoFlexibleSize(this LayoutElement target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(new Vector2(target.flexibleWidth, target.flexibleHeight), value, duration,
+                () => new Vector2(target.flexibleWidth, target.flexibleHeight),
+                (value) =>
+                {
+                    target.flexibleWidth = value.x;
+
+                    target.flexibleHeight = value.y;
+                }, snap);
+        }
+        
+        public static ITween<Vector2> DoMinSize(this LayoutElement target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(new Vector2(target.minWidth, target.minHeight), value, duration,
+                () => new Vector2(target.minWidth, target.minHeight),
+                (value) =>
+                {
+                    target.minWidth = value.x;
+
+                    target.minHeight = value.y;
+                }, snap);
+        }
+        public static ITween<Vector2> DoPreferredSize(this LayoutElement target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(new Vector2(target.preferredWidth, target.preferredHeight), value, duration,
+                () => new Vector2(target.preferredWidth, target.preferredHeight),
+                (value) =>
+                {
+                    target.preferredWidth = value.x;
+
+                    target.preferredHeight = value.y;
+                }, snap);
+        }
+        
+        
+        
+        
+        
         
     }
 
