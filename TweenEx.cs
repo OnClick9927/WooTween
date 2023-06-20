@@ -765,6 +765,157 @@ namespace WooTween
         }
         
         
+        //Outline
+        
+        
+        public static ITween<Color> DoColor(this Outline target, Color value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.effectColor, value, duration, () => target.effectColor,
+                (value) => { target.effectColor = value; }, snap);
+        }
+        public static ITween<float> DoFade(this Outline target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.effectColor.a, value, duration, () => target.effectColor.a,
+                (value) => { target.effectColor = new Color(target.effectColor.r,target.effectColor.g,target.effectColor.b,value); }, snap);
+        }
+        
+        //RectTransform
+        
+        public static ITween<Vector2> DoAnchorMax(this RectTransform target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchorMax, value, duration, () => target.anchorMax,
+                (value) => { target.anchorMax = value; }, snap);
+        }
+        
+        public static ITween<Vector2> DoAnchorMin(this RectTransform target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchorMin, value, duration, () => target.anchorMin,
+                (value) => { target.anchorMin = value; }, snap);
+        }
+        public static ITween<Vector2> DoAnchorPos(this RectTransform target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition, value, duration, () => target.anchoredPosition,
+                (value) => { target.anchoredPosition = value; }, snap);
+        }
+        
+        public static ITween<float> DoAnchorPosX(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition.x, value, duration, () => target.anchoredPosition.x,
+                (value) => { target.anchoredPosition =new Vector2(value,target.anchoredPosition.y); }, snap);
+        }
+
+        public static ITween<float> DoAnchorPosY(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition.y, value, duration, () => target.anchoredPosition.y,
+                (value) => { target.anchoredPosition =new Vector2(target.anchoredPosition.x,value); }, snap);
+        }
+        
+        public static ITween<Vector3> DoAnchorPos3D(this RectTransform target, Vector3 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition3D, value, duration, () => target.anchoredPosition3D,
+                (value) => { target.anchoredPosition3D = value; }, snap);
+        }
+
+        public static ITween<float> DoAnchorPos3DX(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition3D.x, value, duration, () => target.anchoredPosition3D.x,
+                (value) => { target.anchoredPosition3D = new Vector3(value,target.anchoredPosition3D.y,target.anchoredPosition3D.z); }, snap);
+        }
+        public static ITween<float> DoAnchorPos3DY(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition3D.y, value, duration, () => target.anchoredPosition3D.y,
+                (value) => { target.anchoredPosition3D = new Vector3(target.anchoredPosition3D.x,value,target.anchoredPosition3D.z); }, snap);
+        }
+
+        public static ITween<float> DoAnchorPos3DZ(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.anchoredPosition3D.z, value, duration, () => target.anchoredPosition3D.z,
+                (value) => { target.anchoredPosition3D = new Vector3(target.anchoredPosition3D.x,target.anchoredPosition3D.y,value); }, snap);
+        }
+
+        public static ITween<Vector2> DOPivot(this RectTransform target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.pivot, value, duration, () => target.pivot,
+                (value) => { target.pivot = value; }, snap);
+        }
+
+        public static ITween<float> DOPivotX(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.pivot.x, value, duration, () => target.pivot.x,
+                (value) => { target.pivot =new Vector2(value,target.pivot.y) ; }, snap);
+        }
+        
+        public static ITween<float> DOPivotY(this RectTransform target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.pivot.y, value, duration, () => target.pivot.y,
+                (value) => { target.pivot =new Vector2(target.pivot.x,value) ; }, snap);
+        }
+        
+        public static ITween<Vector2> DOSizeDelta(this RectTransform target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.sizeDelta, value, duration, () => target.sizeDelta,
+                (value) => { target.pivot =value ; }, snap);
+        }
+        
+        //ScrollRect
+        
+        public static ITween<Vector2> DoNormalizedPos(this ScrollRect target, Vector2 value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.normalizedPosition, value, duration, () => target.normalizedPosition,
+                (value) => { target.normalizedPosition =value ; }, snap);
+        }
+        public static ITween<float> DoHorizontalNormalizedPos(this ScrollRect target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.horizontalNormalizedPosition, value, duration, () => target.horizontalNormalizedPosition,
+                (value) => { target.horizontalNormalizedPosition =value ; }, snap);
+        }
+        public static ITween<float> DoVerticalNormalizedPos(this ScrollRect target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.verticalNormalizedPosition, value, duration, () => target.verticalNormalizedPosition,
+                (value) => { target.verticalNormalizedPosition =value ; }, snap);
+        }
+        
+        //Slider
+        public static ITween<float> DoValue(this Slider target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.value, value, duration, () => target.value,
+                (value) => { target.value =value ; }, snap);
+        }
+        
+        //text
+        
+        public static ITween<Color> DoValue(this Text target, Color value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.color, value, duration, () => target.color,
+                (value) => { target.color =value ; }, snap);
+        }
+        
+        public static ITween<float> DoFade(this Text target, float value, float duration, bool snap = false)
+        {
+
+            return DoGoto(target.color.a, value, duration, () => target.color.a,
+                (value) => { target.color =new Color(target.color.r,target.color.g,target.color.b,value) ; }, snap);
+        }
         
         
         
