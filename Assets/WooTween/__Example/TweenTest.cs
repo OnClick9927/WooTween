@@ -8,9 +8,15 @@ namespace IFramework_Demo
     public class TweenTest : MonoBehaviour
     {
         public Transform cube;
-        public Text text;
+        public Camera camera;
+        public Light light;
         ITween tc;
         public AnimationCurve curve;
+
+
+        public Image image;
+        
+        
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -32,6 +38,11 @@ namespace IFramework_Demo
 
         public void Start()
         {
+            // Debug.Log(camera.pixelRect);
+            // camera.DoRect(new Rect(0,0,0.8f,0.8f), 4);
+
+           
+            
             //tc = cube.DoMove(new Vector3[] {
             //    Vector3.zero,
             //    Vector3.one,
@@ -72,6 +83,12 @@ namespace IFramework_Demo
             //text.DoText(0, 10f, 2f).SetLoop(-1, LoopType.PingPong);
             //text.DoText("123456789", 2)
             //        .SetLoop(-1, LoopType.PingPong);
+
+
+            // image.DoBlendableColor(Color.red, 2);
+
+            tc.SetUpdateType(TweenUpdateType.Update).SetDeltaTime(0.1f).SetDelta(0.2f).SetTimeScale(2);
+
         }
     }
 }
