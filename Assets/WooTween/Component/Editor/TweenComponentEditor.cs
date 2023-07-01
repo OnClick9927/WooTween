@@ -6,7 +6,7 @@ namespace WooTween
     public class TweenComponentEditor<T, Target> : Editor where T : struct where Target : Object
     {
         public virtual bool drawTargets { get { return false; } }
-        public TweenComponent<T, Target> componet { get { return this.target as TweenComponent<T, Target>; } }
+        public TweenComponent<T, Target> component { get { return this.target as TweenComponent<T, Target>; } }
         public override void OnInspectorGUI()
         {
             GUILayout.Space(5);
@@ -15,8 +15,8 @@ namespace WooTween
                 EditorGUI.BeginChangeCheck();
                 GUILayout.BeginHorizontal();
                 {
-                    componet.autoPlay = GUILayout.Toggle(componet.autoPlay, "autoPlay", "toolbarButton");
-                    componet.autoRcyle = GUILayout.Toggle(componet.autoRcyle, "autoRcyle", "toolbarButton");
+                    component.autoPlay = GUILayout.Toggle(component.autoPlay, "autoPlay", "toolbarButton");
+                    component.autoRecyle = GUILayout.Toggle(component.autoRecyle, "autoRecycle", "toolbarButton");
                     GUILayout.EndHorizontal();
                 }
                 EditorGUILayout.PropertyField(this.serializedObject.FindProperty("duration"));
@@ -29,7 +29,7 @@ namespace WooTween
                     EditorGUILayout.PropertyField(this.serializedObject.FindProperty("targets"), true);
                 }
                 EditorGUILayout.PropertyField(this.serializedObject.FindProperty("type"));
-                switch (componet.type)
+                switch (component.type)
                 {
                     case global::WooTween.TweenComponent<T, Target>.TweenType.Single:
                         EditorGUILayout.PropertyField(this.serializedObject.FindProperty("start"));
@@ -52,15 +52,15 @@ namespace WooTween
                 {
                     if (GUILayout.Button("Play"))
                     {
-                        componet.Play();
+                        component.Play();
                     }
                     if (GUILayout.Button("Rewind"))
                     {
-                        componet.Rewind(1);
+                        component.Rewind(1);
                     }
                     if (GUILayout.Button("Complete"))
                     {
-                        componet.Complete(false);
+                        component.Complete(false);
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -68,7 +68,7 @@ namespace WooTween
         }
         private void OnDestroy()
         {
-            componet.Complete(false);
+            component.Complete(false);
         }
     }
 }

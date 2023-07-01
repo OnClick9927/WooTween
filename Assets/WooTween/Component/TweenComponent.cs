@@ -22,7 +22,7 @@ namespace WooTween
         public AnimationCurve curve;
         public int loop = -1;
         public LoopType LoopType = LoopType.PingPong;
-        public bool autoRcyle;
+        public bool autoRecyle;
         public Action onComplete;
         public ITween tween;
         private void OnEnable()
@@ -52,7 +52,7 @@ namespace WooTween
                 case TweenType.Single:
                     tween = TweenEx.DoGoto<T>(start, end, duration, GetTargetValue, SetTargetValue, snap)
                         .SetLoop(loop, LoopType)
-                        .SetRecycle(autoRcyle)
+                        .SetRecycle(autoRecyle)
                         .OnComplete(OnTweenComplete);
                     if (curve != null)
                     {
@@ -62,7 +62,7 @@ namespace WooTween
                 case TweenType.Array:
                     tween = TweenEx.DoGoto<T>(array, duration, GetTargetValue, SetTargetValue, snap)
                         .SetLoop(loop, LoopType)
-                        .SetRecycle(autoRcyle)
+                        .SetRecycle(autoRecyle)
                         .OnComplete(OnTweenComplete);
                     if (curve != null)
                     {
