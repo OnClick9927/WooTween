@@ -1,7 +1,7 @@
 {
   "name": "com.woo.WooTween",
   "displayName": "WooTween",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "unity": "2020.3",
   "description": "WooTween",
   "type": "library"
