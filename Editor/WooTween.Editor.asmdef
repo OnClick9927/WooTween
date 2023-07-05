@@ -2,12 +2,10 @@
     "name": "WooTween.Editor",
     "rootNamespace": "",
     "references": [
-        "NewAssembly"
+        "GUID:6f4b90828feda8f44b85775b4e8bff6e"
     ],
     "includePlatforms": [
-        "Editor",
-        "WebGL",
-        "WindowsStandalone32"
+        "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
