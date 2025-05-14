@@ -126,7 +126,7 @@ namespace WooTween
     }
 
 
-    public class StaticPool<T> where T : class, new()
+    class StaticPool<T> where T : class, new()
     {
         internal static readonly SimpleObjectPool<T> s_Pool = new SimpleObjectPool<T>();
 
