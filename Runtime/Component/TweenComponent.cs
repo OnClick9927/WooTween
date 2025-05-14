@@ -1,97 +1,133 @@
-﻿
-using System;
+﻿/*********************************************************************************
+ *Author:         OnClick
+ *Version:        0.0.2.116
+ *UnityVersion:   2018.4.24f1
+ *Date:           2020-11-29
+ *Description:    IFramework
+ *History:        2018.11--
+*********************************************************************************/
+using System.Collections.Generic;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UnityEngine.Events;
+
 
 namespace WooTween
 {
-    public abstract class TweenComponent<T, Target> : MonoBehaviour where T : struct where Target : Object
+    [AddComponentMenu("IFramework/TweenComponent"), DisallowMultipleComponent]
+    public class TweenComponent : MonoBehaviour
     {
-        public Target[] targets;
-        public enum TweenType
+        private enum Mode
         {
-            Single,
-            Array
+            Sequence,
+            Parallel
         }
-        public bool autoPlay = true;
-        public float duration = 1;
-        public bool snap = false;
-        public TweenType type;
-        public T start, end;
-        public T[] array;
-        public AnimationCurve curve;
-        public int loop = -1;
-        public LoopType LoopType = LoopType.PingPong;
-        public bool autoRecyle;
-        public Action onComplete;
-        public ITween tween;
-        private void OnEnable()
+        [SerializeField] private Mode mode = Mode.Sequence;
+        [SerializeField] private float timeScale = 1;
+        [SerializeField] private string id;
+
+        [SerializeField] private bool PlayOnAwake;
+
+        [SerializeReference]
+        [HideInInspector]
+        internal List<TweenComponentActor> actors = new List<TweenComponentActor>();
+
+        [System.Serializable]
+        public class TweenComponentEvent : UnityEvent<ITweenContext> { }
+        [System.Serializable]
+        public class TweenComponentTickEvent : UnityEvent<ITweenContext, float, float> { }
+
+        [HideInInspector] public TweenComponentEvent onCancel = new TweenComponentEvent();
+        [HideInInspector] public TweenComponentEvent onBegin = new TweenComponentEvent();
+        [HideInInspector] public TweenComponentEvent onComplete = new TweenComponentEvent();
+        [HideInInspector] public TweenComponentTickEvent onTick = new TweenComponentTickEvent();
+
+
+        internal bool hasValue => context != null;
+        public bool paused => !hasValue ? true : context.paused;
+        private ITweenContext context;
+        private void ResetActorsPercent()
         {
-            if (autoPlay)
+#if UNITY_EDITOR
+            for (int i = 0; i < actors.Count; i++)
+            {
+                var actor = actors[i];
+                actor.ResetPercent();
+            }
+#endif
+        }
+        private void Awake()
+        {
+            context = null;
+            if (PlayOnAwake)
             {
                 Play();
             }
         }
-        protected virtual void OnTweenComplete()
+        private void RecyleContext()
         {
-            if (tween.autoRecycle)
-            {
-                tween = null;
-            }
-            onComplete?.Invoke();
+            context?.SetAutoCycle(true);
+            context?.Cancel();
+            context = null;
         }
         public void Play()
         {
-            if (tween != null)
+            ResetActorsPercent();
+#if UNITY_EDITOR
+            if (!UnityEditor.EditorApplication.isPlaying)
             {
-                tween.Complete(false);
-                tween = null;
+                RecyleContext();
             }
-            switch (type)
+#endif
+            if (context == null)
             {
-                case TweenType.Single:
-                    tween = TweenEx.DoGoto<T>(start, end, duration, GetTargetValue, SetTargetValue, snap)
-                        .SetLoop(loop, LoopType)
-                        .SetRecycle(autoRecyle)
-                        .OnComplete(OnTweenComplete);
-                    if (curve != null)
-                    {
-                        tween.SetAnimationCurve(curve);
-                    }
-                    break;
-                case TweenType.Array:
-                    tween = TweenEx.DoGoto<T>(array, duration, GetTargetValue, SetTargetValue, snap)
-                        .SetLoop(loop, LoopType)
-                        .SetRecycle(autoRecyle)
-                        .OnComplete(OnTweenComplete);
-                    if (curve != null)
-                    {
-                        tween.SetAnimationCurve(curve);
-                    }
-                    break;
-                default:
-                    break;
-            }
+                ITweenGroup group = null;
+                if (mode == Mode.Sequence)
+                    context = group = Tween.Sequence();
+                else
+                    context = group = Tween.Parallel();
 
+
+
+                for (int i = 0; i < actors.Count; i++)
+                {
+
+                    var actor = actors[i];
+                    actor.transform = transform;
+                    group.NewContext(actor.Create);
+                }
+                group.SetAutoCycle(false)
+                     .SetTimeScale(timeScale)
+                     .OnBegin(onBegin.Invoke)
+                     .OnComplete(onComplete.Invoke)
+                     .OnTick(onTick.Invoke)
+                     .OnCancel(onCancel.Invoke).SetId(id).Run();
+            }
+            else
+            {
+                ReStart();
+            }
         }
-        public void Rewind(int time)
+        public void UnPause() => context?.UnPause();
+        public void Pause() => context?.Pause();
+        public void ReStart()
         {
-            if (tween != null)
-            {
-                tween.Rewind(time);
-            }
+            ResetActorsPercent();
+            context.SetTimeScale(timeScale);
+            context?.ReStart();
         }
 
-        protected abstract void SetTargetValue(T value);
-
-        protected abstract T GetTargetValue();
-
-        public void Complete(bool v)
+        public void Stop() => context?.Stop();
+        public void Cancel()
         {
-            if (tween != null)
-            {
-                tween.Complete(v);
-            }
+            context?.Cancel();
         }
+
+        private void OnDisable()
+        {
+            RecyleContext();
+        }
+
+
     }
+
 }
