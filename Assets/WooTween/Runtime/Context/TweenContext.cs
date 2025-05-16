@@ -38,7 +38,7 @@ namespace WooTween
         }
         protected abstract void OnRun();
 
- 
+
     }
 
 
@@ -143,8 +143,33 @@ namespace WooTween
             }
 
         }
-
-
+        private bool IsSameArray()
+        {
+            for (int i = 0; i < _points_length; i++)
+            {
+                if (!this._points[i].Equals(this.points[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        protected override void OnRewind()
+        {
+            if (_mode == TweenType.Bezier || _mode == TweenType.Array)
+            {
+                if (!IsSameArray())
+                    for (int i = 0; i < _points_length; i++)
+                        this._points[i] = this.points[i];
+            }
+            else
+            {
+                _start = start;
+                _end = end;
+            }
+            SetTime(0);
+            CalculateView(0);
+        }
 
         protected override bool MoveNext(float delta)
         {
@@ -205,7 +230,7 @@ namespace WooTween
                 if (loopType == LoopType.PingPong)
                 {
 
-                    bool same = this._points[0].Equals(this.points[0]);
+                    bool same = IsSameArray();
                     for (int i = 0; i < _points_length; i++)
                     {
                         if (same)

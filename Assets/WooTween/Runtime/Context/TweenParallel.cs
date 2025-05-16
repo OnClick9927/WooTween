@@ -16,7 +16,13 @@ namespace WooTween
         public List<Func<ITweenContext>> list = new List<Func<ITweenContext>>();
         private List<ITweenContext> contexts = new List<ITweenContext>();
 
+        protected override void OnRewind()
+        {
+            for (int i = 0; i < contexts.Count; i++) {
 
+                contexts[i].Rewind();
+            }
+        }
         public ITweenGroup NewContext(Func<ITweenContext> func)
         {
             if (func == null) return this;

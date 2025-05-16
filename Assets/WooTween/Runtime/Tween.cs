@@ -162,6 +162,11 @@ namespace WooTween
             t.AsContextBase().Recycle();
             return t;
         }
+        public static T Rewind<T>(this T t) where T : ITweenContext
+        {
+            t.AsContextBase().Rewind();
+            return t;
+        }
         public static T Stop<T>(this T t) where T : ITweenContext
         {
             t.AsContextBase().Stop();

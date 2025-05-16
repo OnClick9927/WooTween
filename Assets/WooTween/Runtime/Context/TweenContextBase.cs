@@ -184,7 +184,12 @@ namespace WooTween
             this.owner = owner;
         }
 
-
+        public void Rewind()
+        {
+            Stop();
+            OnRewind();
+        }
+        protected abstract void OnRewind();
     }
 
 
