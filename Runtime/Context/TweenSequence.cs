@@ -15,7 +15,14 @@ namespace WooTween
     {
         public List<Func<ITweenContext>> list = new List<Func<ITweenContext>>();
         private Queue<Func<ITweenContext>> _queue = new Queue<Func<ITweenContext>>();
-
+        private List<ITweenContext> _runed = new List<ITweenContext>();
+        protected override void OnRewind()
+        {
+            for (int i = 0; i < _runed.Count; i++)
+            {
+                _runed[i].Rewind();
+            }
+        }
         public ITweenGroup NewContext(Func<ITweenContext> func)
         {
             if (func == null) return this;
@@ -36,6 +43,7 @@ namespace WooTween
             inner = null;
             list.Clear();
             _queue.Clear();
+            _runed.Clear();
         }
 
 
@@ -54,6 +62,7 @@ namespace WooTween
                     inner.OnCancel(RunNext);
                     inner.OnComplete(RunNext);
                     inner?.SetTimeScale(this.timeScale);
+                    _runed.Add(inner);
                 }
                 else
                 {
@@ -75,6 +84,8 @@ namespace WooTween
         {
             base.Run();
             _queue.Clear();
+            _runed.Clear();
+
             for (int i = 0; i < list.Count; i++)
             {
                 var func = list[i];

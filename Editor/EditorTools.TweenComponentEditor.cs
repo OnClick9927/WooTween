@@ -120,8 +120,8 @@ namespace WooTween
                 if (GUILayout.Button(nameof(TweenComponent.Stop)))
                     comp.Stop();
 
-                //if (GUILayout.Button(nameof(TweenComponent.ReStart)))
-                //    comp.ReStart();
+                if (GUILayout.Button(nameof(TweenComponent.Rewind)))
+                    comp.Rewind();
 
             }
 

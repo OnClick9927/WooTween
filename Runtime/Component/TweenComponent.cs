@@ -117,6 +117,8 @@ namespace WooTween
         }
 
         public void Stop() => context?.Stop();
+        public void Rewind() => context?.Rewind();
+
         public void Cancel()
         {
             context?.Cancel();
