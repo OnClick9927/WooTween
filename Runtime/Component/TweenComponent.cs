@@ -41,7 +41,16 @@ namespace WooTween
         [HideInInspector] public TweenComponentEvent onComplete = new TweenComponentEvent();
         [HideInInspector] public TweenComponentTickEvent onTick = new TweenComponentTickEvent();
 
-
+        public T FindActor<T>() where T : TweenComponentActor
+        {
+            for (int i = 0; i < actors.Count; i++)
+            {
+                var actor = actors[i];
+                if (actor is T)
+                    return actor as T;
+            }
+            return null;
+        }
         internal bool hasValue => context != null;
         public bool paused => !hasValue ? true : context.paused;
         private ITweenContext context;
