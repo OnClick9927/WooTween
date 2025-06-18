@@ -92,22 +92,22 @@ namespace WooTween
         }
 
 #endif
-         enum ArrayTweenType
+        public enum ArrayTweenType
         {
             Direct = 0,
             Bezier = 1,
         }
-         enum TransformActSpace
+        public enum TransformActSpace
         {
             World,
             Local
         }
-         enum StartValueType
+        public enum StartValueType
         {
             Relative,
             Direct
         }
-         class DoScaleActor : TweenComponentActor<Vector3, Transform>
+        public class DoScaleActor : TweenComponentActor<Vector3, Transform>
         {
             public StartValueType startType;
 
@@ -120,7 +120,7 @@ namespace WooTween
                 return target.DoLocalScale(start, end, duration, snap);
             }
         }
-         class DoPositionActor : TweenComponentActor<Vector3, Transform>
+        public class DoPositionActor : TweenComponentActor<Vector3, Transform>
         {
 
 
@@ -142,7 +142,7 @@ namespace WooTween
 
             }
         }
-         class DoRotateActor : TweenComponentActor<Vector3, Transform>
+        public class DoRotateActor : TweenComponentActor<Vector3, Transform>
         {
             public StartValueType startType;
 
@@ -166,7 +166,7 @@ namespace WooTween
         }
 
 
-         class DoShakePositionActor : DoPositionActor
+        public class DoShakePositionActor : DoPositionActor
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -185,7 +185,7 @@ namespace WooTween
 
             }
         }
-         class DoShakeRotationActor : DoRotateActor
+        public class DoShakeRotationActor : DoRotateActor
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -204,7 +204,7 @@ namespace WooTween
 
             }
         }
-         class DoShakeScaleActor : DoScaleActor
+        public class DoShakeScaleActor : DoScaleActor
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -218,7 +218,7 @@ namespace WooTween
             }
         }
 
-         class DoPunchPositionActor : DoPositionActor
+        public class DoPunchPositionActor : DoPositionActor
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -237,7 +237,7 @@ namespace WooTween
 
             }
         }
-         class DoPunchRotateActor : DoRotateActor
+        public class DoPunchRotateActor : DoRotateActor
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -256,7 +256,7 @@ namespace WooTween
 
             }
         }
-         class DoPunchScaleActor : DoScaleActor
+        public class DoPunchScaleActor : DoScaleActor
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -270,7 +270,7 @@ namespace WooTween
             }
         }
 
-         class DoJumpPositionActor : DoPositionActor
+        public class DoJumpPositionActor : DoPositionActor
         {
             public Vector3 strength = Vector3.one;
             public int jumpCount = 5;
@@ -289,7 +289,7 @@ namespace WooTween
 
             }
         }
-         class DoJumpRotateActor : DoRotateActor
+        public class DoJumpRotateActor : DoRotateActor
         {
             public Vector3 strength = Vector3.one;
             public int jumpCount = 5;
@@ -308,7 +308,7 @@ namespace WooTween
 
             }
         }
-         class DoJumpScaleActor : DoScaleActor
+        public class DoJumpScaleActor : DoScaleActor
         {
             public Vector3 strength = Vector3.one;
             public int jumpCount = 5;
@@ -324,7 +324,7 @@ namespace WooTween
 
 
 
-         class DoScaleArrayActor : TweenComponentActor<Vector3, Transform>
+        public class DoScaleArrayActor : TweenComponentActor<Vector3, Transform>
         {
             public ArrayTweenType type;
             public Vector3[] points;
@@ -338,7 +338,7 @@ namespace WooTween
 
             }
         }
-         class DoPositionArrayActor : TweenComponentActor<Vector3, Transform>
+        public class DoPositionArrayActor : TweenComponentActor<Vector3, Transform>
         {
 
             public ArrayTweenType type;
@@ -359,7 +359,7 @@ namespace WooTween
 
             }
         }
-         class DoRotateArrayActor : TweenComponentActor<Vector3, Transform>
+        public class DoRotateArrayActor : TweenComponentActor<Vector3, Transform>
         {
             public ArrayTweenType type;
 
