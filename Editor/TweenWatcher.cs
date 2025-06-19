@@ -18,7 +18,7 @@ namespace WooTween
     class TweenWatcher : EditorWindow
     {
 
-        [MenuItem("Tools/TweenWatcher")]
+        [MenuItem("Tools/WooTween/TweenWatcher")]
         static void ShowWindow()
         {
             GetWindow<TweenWatcher>();

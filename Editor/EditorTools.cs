@@ -24,6 +24,35 @@ namespace WooTween
 {
     static partial class EditorTools
     {
+
+
+        [MenuItem("Tools/WooTween/Import Extend")]
+        static void ImportExtend()
+        {
+            string path = $"{pkgPath}/Package Resources/extend.unitypackage";
+            AssetDatabase.ImportPackage(path, true);
+        }
+        private static string GetFilePath()
+        {
+            return AssetDatabase.GetAllAssetPaths().FirstOrDefault(x => x.Contains(nameof(WooTween))
+            && x.EndsWith($"{nameof(EditorTools)}.cs"));
+        }
+        public static string pkgPath
+        {
+            get
+            {
+                string packagePath = Path.GetFullPath("Packages/com.woo.tween");
+                if (Directory.Exists(packagePath))
+                {
+                    return packagePath;
+                }
+
+                string path = GetFilePath();
+                var index = path.LastIndexOf("WooTween");
+                path = path.Substring(0, index + "WooTween".Length);
+                return path;
+            }
+        }
         public static Delegate ToDelegate(this MethodInfo method, object target)
         {
             var _params = method.GetParameters();
