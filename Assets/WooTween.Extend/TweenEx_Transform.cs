@@ -11,7 +11,12 @@ using UnityEngine;
 
 namespace WooTween
 {
-    public static partial class TweenEx
+    public enum StartValueType
+    {
+        Relative,
+        Direct
+    }
+    public static partial class TweenEx_Transform
     {
 
 #if UNITY_EDITOR
@@ -102,11 +107,7 @@ namespace WooTween
             World,
             Local
         }
-        public enum StartValueType
-        {
-            Relative,
-            Direct
-        }
+
         public class DoScaleActor : TweenComponentActor<Vector3, Transform>
         {
             public StartValueType startType;

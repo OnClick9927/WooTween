@@ -219,7 +219,18 @@ namespace WooTween
             T _cur = calc.Calculate(_mode, _start, _end, _convertPercent, src, _deltaPercent, snap, strength,
                 frequency, dampingRatio, jumpCount, jumpDamping, _points, _points_length);
             if (!src.Equals(_cur))
+            {
                 setter?.Invoke(target, _cur);
+# if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    if (target is UnityEngine.Object)
+                    {
+                        UnityEditor.EditorUtility.SetDirty((target as UnityEngine.Object));
+                    }
+                }
+#endif
+            }
         }
 
 
