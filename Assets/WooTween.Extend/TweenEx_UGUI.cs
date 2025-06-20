@@ -14,6 +14,27 @@ namespace WooTween
 {
     public static partial class TweenEx_UGUI
     {
+
+
+        public static ITweenGroup DoGradientColor(this Graphic target, Gradient gradient, float duration, bool snap = false)
+        {
+            var colors = gradient.colorKeys;
+            int len = colors.Length;
+            var s = Tween.Sequence();
+            for (int i = 0; i < len; ++i)
+            {
+                GradientColorKey c = colors[i];
+                if (i == 0)
+                    target.color = c.color;
+
+                float colorDuration = duration * (i == 0 ? c.time : c.time - colors[i - 1].time);
+                s.NewContext(() => target.DoColor(c.color, colorDuration, snap));
+            }
+            return s.Run();
+        }
+
+
+
         public static ITweenContext<Color, Graphic> DoColor(this Graphic target, Color start, Color end, float duration, bool snap = false)
    => Tween.DoGoto(target, start, end, duration, static (target) => target.color, static (target, value) => target.color = value, snap);
 
@@ -49,7 +70,14 @@ namespace WooTween
         public static ITweenContext<float, CanvasGroup> DoAlpha(this CanvasGroup target, float end, float duration, bool snap = false)
 => target.DoAlpha(target.alpha, end, duration, snap);
 
-
+        public class DoGradientColorActor : TweenGroupComponentActor<Graphic>
+        {
+            public Gradient gradient;
+            protected override ITweenGroup OnCreate()
+            {
+                return target.DoGradientColor(gradient, duration, snap);
+            }
+        }
         public class DoColorActor : TweenComponentActor<Color, Graphic>
         {
             public StartValueType startType;

@@ -12,7 +12,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using static WooTween.EditorTools;
-using static WooTween.TweenComponentActor;
+using static WooTween.TweenComponentContextActor;
 namespace WooTween
 {
     interface ITweenActorEditor
@@ -31,32 +31,38 @@ namespace WooTween
             FieldDefaultInspector(actor.GetType().GetField("target"), actor);
 
             actor.id = EditorGUILayout.TextField("ID", actor.id);
-            actor.snap = EditorGUILayout.Toggle("Snap", actor.snap);
-            actor.sourceDelta = EditorGUILayout.FloatField("Source Delta", actor.sourceDelta);
             actor.duration = EditorGUILayout.FloatField("Duration", actor.duration);
-            actor.delay = EditorGUILayout.FloatField("Delay", actor.delay);
-            GUILayout.Space(10);
+            actor.snap = EditorGUILayout.Toggle("Snap", actor.snap);
 
-            actor.loopType = (LoopType)EditorGUILayout.EnumPopup(nameof(LoopType), actor.loopType);
-            actor.loops = EditorGUILayout.IntField("Loops", actor.loops);
-
-
-            GUILayout.Space(10);
-
-            actor.curveType = (CurveType)EditorGUILayout.EnumPopup(nameof(CurveType), actor.curveType);
-            if (actor.curveType == CurveType.Ease)
+            if (actor is TweenComponentContextActor _actor)
             {
-                actor.ease = (Ease)EditorGUILayout.EnumPopup(nameof(Ease), actor.ease);
-            }
-            else
-            {
-                AnimationCurve curve = actor.curve;
-                if (curve == null)
+
+                _actor.sourceDelta = EditorGUILayout.FloatField("Source Delta", _actor.sourceDelta);
+                _actor.delay = EditorGUILayout.FloatField("Delay", _actor.delay);
+                GUILayout.Space(10);
+
+                _actor.loopType = (LoopType)EditorGUILayout.EnumPopup(nameof(LoopType), _actor.loopType);
+                _actor.loops = EditorGUILayout.IntField("Loops", _actor.loops);
+
+
+                GUILayout.Space(10);
+
+                _actor.curveType = (CurveType)EditorGUILayout.EnumPopup(nameof(CurveType), _actor.curveType);
+                if (_actor.curveType == CurveType.Ease)
                 {
-                    curve = new AnimationCurve();
+                    _actor.ease = (Ease)EditorGUILayout.EnumPopup(nameof(Ease), _actor.ease);
                 }
-                actor.curve = EditorGUILayout.CurveField(nameof(AnimationCurve), curve);
+                else
+                {
+                    AnimationCurve curve = _actor.curve;
+                    if (curve == null)
+                    {
+                        curve = new AnimationCurve();
+                    }
+                    _actor.curve = EditorGUILayout.CurveField(nameof(AnimationCurve), curve);
+                }
             }
+
             GUILayout.EndVertical();
         }
         protected void DrawSelf(T actor)
@@ -67,6 +73,11 @@ namespace WooTween
             var _baseType = actor.GetType();
             while (true)
             {
+                if (_baseType.IsGenericType && _baseType.GetGenericTypeDefinition() == typeof(TweenGroupComponentActor<>))
+                {
+                    break;
+                }
+
                 if (_baseType.IsGenericType && _baseType.GetGenericTypeDefinition() == typeof(TweenComponentActor<,>))
                 {
                     break;

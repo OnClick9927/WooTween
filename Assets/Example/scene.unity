@@ -374,15 +374,15 @@ MonoBehaviour:
           m_RotationOrder: 4
         ease: 0
         target: {fileID: 1722150966}
-        startType: 0
+        startType: 1
         start: 
         end: Test
     - rid: 8669666114341961730
       type: {class: TweenEx_UGUI/DoColorActor, ns: WooTween, asm: Assembly-CSharp}
       data:
         curveType: 0
-        loopType: 0
-        loops: 1
+        loopType: 1
+        loops: 2
         delay: 0
         duration: 1
         sourceDelta: 0
@@ -397,8 +397,8 @@ MonoBehaviour:
         ease: 0
         target: {fileID: 66031086}
         startType: 1
-        start: {r: 1, g: 0, b: 0, a: 1}
-        end: {r: 1, g: 1, b: 1, a: 1}
+        start: {r: 1, g: 1, b: 1, a: 1}
+        end: {r: 1, g: 0, b: 0, a: 1}
 --- !u!65 &384936794
 BoxCollider:
   m_ObjectHideFlags: 0

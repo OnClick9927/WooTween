@@ -46,7 +46,22 @@ namespace WooTween
         public static ITweenContext<Color, SpriteRenderer> DoColor(this SpriteRenderer target, Color end, float duration, bool snap = false)
 => target.DoColor(target.color, end, duration, snap);
 
+        public static ITweenGroup DoGradientColor(this SpriteRenderer target, Gradient gradient, float duration, bool snap = false)
+        {
+            var colors = gradient.colorKeys;
+            int len = colors.Length;
+            var s = Tween.Sequence();
+            for (int i = 0; i < len; ++i)
+            {
+                GradientColorKey c = colors[i];
+                if (i == 0)
+                    target.color = c.color;
 
+                float colorDuration = duration * (i == 0 ? c.time : c.time - colors[i - 1].time);
+                s.NewContext(() => target.DoColor(c.color, colorDuration, snap));
+            }
+            return s.Run();
+        }
 
         public class DoVectorActor : TweenComponentActor<Vector4, Material>
         {
@@ -114,7 +129,14 @@ namespace WooTween
                 return target.DoColor(start, end, duration, snap);
             }
         }
-
+        public class DoGradientColorActor : TweenGroupComponentActor<SpriteRenderer>
+        {
+            public Gradient gradient;
+            protected override ITweenGroup OnCreate()
+            {
+                return target.DoGradientColor(gradient, duration, snap);
+            }
+        }
 
     }
 }

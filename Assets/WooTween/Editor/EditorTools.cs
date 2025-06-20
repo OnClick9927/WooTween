@@ -275,7 +275,7 @@ namespace WooTween
             {
                 typeof(int),typeof(float),typeof(double),typeof(bool),typeof(long),typeof(string),
                 typeof(Color),typeof(Vector2),typeof(Vector3),typeof(Vector4),typeof(Vector2Int),typeof(Vector3Int),
-                typeof(Rect),typeof(RectInt),typeof(Bounds),typeof(UnityEngine.Object),typeof(AnimationCurve),
+                typeof(Rect),typeof(RectInt),typeof(Bounds),typeof(UnityEngine.Object),typeof(AnimationCurve),typeof(Gradient),
             };
         private static bool IsBaseType(Type type)
         {
@@ -286,7 +286,6 @@ namespace WooTween
         }
         private static object DrawBase(object value, string name, Type fieldType)
         {
-
             if (fieldType == typeof(int)) return EditorGUILayout.IntField(name, (int)value);
             else if (fieldType == typeof(float)) return EditorGUILayout.FloatField(name, (float)value);
             else if (fieldType == typeof(bool)) return EditorGUILayout.Toggle(name, (bool)value);
@@ -313,6 +312,16 @@ namespace WooTween
                 }
 
                 return EditorGUILayout.CurveField(name, curve);
+            }
+            else if (fieldType == typeof(Gradient))
+            {
+                Gradient curve = value as Gradient;
+                if (curve == null)
+                {
+                    curve = new Gradient();
+                }
+
+                return EditorGUILayout.GradientField(name, curve);
             }
             return value;
         }
