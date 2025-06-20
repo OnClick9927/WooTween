@@ -18,6 +18,12 @@ namespace WooTween
     [CustomEditor(typeof(TweenComponent))]
     class TweenComponentEditor : Editor
     {
+        enum ActorType
+        {
+            Group,
+            Context,
+            None=999999,
+        }
         TweenComponent comp;
         private void OnEnable()
         {
@@ -31,27 +37,33 @@ namespace WooTween
             foreach (var type in types)
             {
                 var _baseType = type;
-                bool find = false;
+                ActorType case_index = ActorType.None;
                 while (true)
                 {
+                    if (_baseType.IsGenericType && _baseType.GetGenericTypeDefinition() == typeof(TweenGroupComponentActor<>))
+                    {
+                        case_index = ActorType.Group;
+                        break;
+                    }
                     if (_baseType.IsGenericType && _baseType.GetGenericTypeDefinition() == typeof(TweenComponentActor<,>))
                     {
-                        find = true;
+                        case_index = ActorType.Context;
                         break;
                     }
-                    else if (_baseType == typeof(object))
-                    {
-                        break;
-                    }
+                    else if (_baseType == typeof(object)) break;
                     _baseType = _baseType.BaseType;
                 }
-                if (find)
+                if (case_index != ActorType.None)
                 {
+
+                    var arg_index = (int)case_index;
+
+
                     var args = _baseType.GetGenericArguments();
-                    options.Add($"{args[1].Name}/{type.Name.Replace("Actor", "")}");
-                    if (!map.ContainsKey(args[1].Name))
-                        map[args[1].Name] = 0;
-                    map[args[1].Name]++;
+                    options.Add($"{args[arg_index].Name}/{type.Name.Replace("Actor", "")}");
+                    if (!map.ContainsKey(args[arg_index].Name))
+                        map[args[arg_index].Name] = 0;
+                    map[args[arg_index].Name]++;
                     options_type.Add(type);
 
 
@@ -67,7 +79,7 @@ namespace WooTween
                                 return true;
                             }
                             _type = _type.BaseType;
-                            if (_type == null || _type == typeof(System.Object))
+                            if (_type == null || _type == typeof(object))
                             {
                                 return false;
                             }
