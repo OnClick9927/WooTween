@@ -42,6 +42,8 @@ namespace WooTween
 
         private Action<ITweenContext> onComplete;
         private Action<ITweenContext> onCancel;
+        private Action<ITweenContext> onRewind;
+
         private Action<ITweenContext, float, float> onTick;
 
 
@@ -50,6 +52,8 @@ namespace WooTween
         public void OnComplete(Action<ITweenContext> action) => onComplete += action;
         public void OnCancel(Action<ITweenContext> action) => onCancel += action;
         public void OnTick(Action<ITweenContext, float, float> action) => onTick += action;
+        public void OnRewind(Action<ITweenContext> action) => onRewind += action;
+
         protected virtual void Reset()
         {
             paused = false;
@@ -59,6 +63,7 @@ namespace WooTween
             onBegin = null;
             onComplete = null;
             onTick = null;
+            onRewind = null;
             autoCycle = true;
             timeScale = 1f;
             id = string.Empty;
@@ -187,9 +192,13 @@ namespace WooTween
         public void Rewind()
         {
             Stop();
+            onRewind?.Invoke(this);
             OnRewind();
         }
         protected abstract void OnRewind();
+
+
+        public abstract float GetPercent();
     }
 
 

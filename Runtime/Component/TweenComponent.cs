@@ -16,16 +16,18 @@ namespace WooTween
     [AddComponentMenu("IFramework/TweenComponent"), DisallowMultipleComponent]
     public class TweenComponent : MonoBehaviour
     {
-        private enum Mode
+        internal enum Mode
         {
             Sequence,
             Parallel
         }
-        [SerializeField] private Mode mode = Mode.Sequence;
+        [SerializeField] internal Mode mode = Mode.Sequence;
         [SerializeField] private float timeScale = 1;
+        [SerializeField] private int loops = 1;
         [SerializeField] private string id;
 
         [SerializeField] private bool PlayOnAwake;
+
 
         [SerializeReference]
         [HideInInspector]
@@ -35,6 +37,8 @@ namespace WooTween
         public class TweenComponentEvent : UnityEvent<ITweenContext> { }
         [System.Serializable]
         public class TweenComponentTickEvent : UnityEvent<ITweenContext, float, float> { }
+
+        [HideInInspector] public TweenComponentEvent onRewind = new TweenComponentEvent();
 
         [HideInInspector] public TweenComponentEvent onCancel = new TweenComponentEvent();
         [HideInInspector] public TweenComponentEvent onBegin = new TweenComponentEvent();
@@ -80,7 +84,7 @@ namespace WooTween
         }
         public void Play()
         {
-            ResetActorsPercent();
+            //ResetActorsPercent();
 #if UNITY_EDITOR
             if (!UnityEditor.EditorApplication.isPlaying)
             {
@@ -104,12 +108,25 @@ namespace WooTween
                     actor.transform = transform;
                     group.NewContext(actor.Create);
                 }
+
+#if UNITY_EDITOR
+                if (!UnityEditor.EditorApplication.isPlaying)
+                {
+                    group.OnRewind((e) =>
+                    {
+                        ResetActorsPercent();
+                    });
+                }
+#endif
+
                 group.SetAutoCycle(false)
                      .SetTimeScale(timeScale)
                      .OnBegin(onBegin.Invoke)
                      .OnComplete(onComplete.Invoke)
                      .OnTick(onTick.Invoke)
-                     .OnCancel(onCancel.Invoke).SetId(id).Run();
+                     .OnCancel(onCancel.Invoke)
+                     .OnRewind(onRewind.Invoke)
+                     .SetId(id).Run().SetLoops(loops);
             }
             else
             {
@@ -120,7 +137,7 @@ namespace WooTween
         public void Pause() => context?.Pause();
         public void ReStart()
         {
-            ResetActorsPercent();
+            //ResetActorsPercent();
             context.SetTimeScale(timeScale);
             context?.ReStart();
         }

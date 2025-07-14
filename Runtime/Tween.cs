@@ -50,6 +50,14 @@ namespace WooTween
             context.AsInstance().Config(target, start, end, duration, getter, setter, snap);
             return context;
         }
+
+        public static ITweenContext DoWait(float duration,
+         bool autoRun = true)
+        {
+            var context = Allocate<float, System.Object>(autoRun);
+            context.AsInstance().WaitConfig(duration);
+            return context;
+        }
         public static ITweenContext<T, Target> DoShake<T, Target>(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, T strength,
             int frequency = 10, float dampingRatio = 1, bool snap = false, bool autoRun = true)
         {
@@ -208,6 +216,11 @@ namespace WooTween
         public static T OnCancel<T>(this T t, Action<ITweenContext> action) where T : ITweenContext
         {
             t.AsContextBase().OnCancel(action);
+            return t;
+        }
+        public static T OnRewind<T>(this T t, Action<ITweenContext> action) where T : ITweenContext
+        {
+            t.AsContextBase().OnRewind(action);
             return t;
         }
         public static T OnTick<T>(this T t, Action<ITweenContext, float, float> action) where T : ITweenContext

@@ -10,7 +10,7 @@ namespace WooTween
 {
     public enum TweenType
     {
-        Normal, Shake, Punch, Jump, Bezier, Array
+        Normal, Shake, Punch, Jump, Bezier, Array,WaitTime
     }
 
 

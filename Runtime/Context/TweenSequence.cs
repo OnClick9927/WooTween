@@ -13,6 +13,15 @@ namespace WooTween
 {
     class TweenSequence : TweenContextBase, ITweenGroup
     {
+
+        public override float GetPercent()
+        {
+            var total = list.Count;
+            float result = _runed.Count - 1 + inner.GetPercent();
+            return result / total;
+        }
+
+
         public List<Func<ITweenContext>> list = new List<Func<ITweenContext>>();
         private Queue<Func<ITweenContext>> _queue = new Queue<Func<ITweenContext>>();
         private List<ITweenContext> _runed = new List<ITweenContext>();
@@ -40,19 +49,27 @@ namespace WooTween
         protected override void Reset()
         {
             base.Reset();
+            loops = 1;
             inner = null;
             list.Clear();
             _queue.Clear();
             _runed.Clear();
         }
 
+        private int _loops = 0;
+        private int loops = 1;
 
+        //private float _runed_time = 0;
+        public void SetLoops(int loops)
+        {
+            this.loops = loops;
+        }
 
 
         private void RunNext(ITweenContext context)
         {
             if (canceled || isDone) return;
-
+            //TweenContext
             if (_queue.Count > 0)
             {
                 inner = _queue.Dequeue().Invoke();
@@ -63,6 +80,7 @@ namespace WooTween
                     inner.OnComplete(RunNext);
                     inner?.SetTimeScale(this.timeScale);
                     _runed.Add(inner);
+                    //_runed_time = GetPercent();
                 }
                 else
                 {
@@ -71,18 +89,23 @@ namespace WooTween
             }
             else
             {
-                Complete();
+
+                _loops++;
+                if (loops == -1 || _loops < loops)
+                    OnceLoop();
+                else
+                    Complete();
+
             }
         }
 
         private void _OnTick(ITweenContext context, float time, float delta)
         {
+
             InvokeTick(time, delta);
         }
-
-        public override void Run()
+        private void OnceLoop()
         {
-            base.Run();
             _queue.Clear();
             _runed.Clear();
 
@@ -92,6 +115,13 @@ namespace WooTween
                 _queue.Enqueue(func);
             }
             RunNext(null);
+        }
+
+        public override void Run()
+        {
+            base.Run();
+            _loops = 0;
+            OnceLoop();
         }
 
         public override ITweenContext SetTimeScale(float timeScale)
