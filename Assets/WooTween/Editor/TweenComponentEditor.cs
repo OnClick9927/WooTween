@@ -22,7 +22,7 @@ namespace WooTween
         {
             Group,
             Context,
-            None=999999,
+            None = 999999,
         }
         TweenComponent comp;
         private void OnEnable()
@@ -40,6 +40,11 @@ namespace WooTween
                 ActorType case_index = ActorType.None;
                 while (true)
                 {
+                    if (_baseType == typeof(TweenComponentActor))
+                    {
+                        case_index = ActorType.None;
+                        break;
+                    }
                     if (_baseType.IsGenericType && _baseType.GetGenericTypeDefinition() == typeof(TweenGroupComponentActor<>))
                     {
                         case_index = ActorType.Group;
@@ -53,6 +58,7 @@ namespace WooTween
                     else if (_baseType == typeof(object)) break;
                     _baseType = _baseType.BaseType;
                 }
+                string target = "Common";
                 if (case_index != ActorType.None)
                 {
 
@@ -60,39 +66,43 @@ namespace WooTween
 
 
                     var args = _baseType.GetGenericArguments();
-                    options.Add($"{args[arg_index].Name}/{type.Name.Replace("Actor", "")}");
-                    if (!map.ContainsKey(args[arg_index].Name))
-                        map[args[arg_index].Name] = 0;
-                    map[args[arg_index].Name]++;
-                    options_type.Add(type);
-
-
-
-                    var find_editor = editortypes.Find(x =>
-                    {
-                        var _type = x;
-                        while (true)
-                        {
-                            if (_type.IsGenericType && _type.GetGenericTypeDefinition() == typeof(TweenActorEditor<>)
-                            && _type.GetGenericArguments()[0] == type)
-                            {
-                                return true;
-                            }
-                            _type = _type.BaseType;
-                            if (_type == null || _type == typeof(object))
-                            {
-                                return false;
-                            }
-                        }
-                    });
-
-                    if (find_editor != null)
-                        editor_actor.Add(type, Activator.CreateInstance(find_editor) as ITweenActorEditor);
-                    else
-                        editor_actor.Add(type, Activator.CreateInstance(typeof(TweenActorEditor<>).MakeGenericType(type)) as ITweenActorEditor);
-
+                    target = args[arg_index].Name;
                 }
 
+                options.Add($"{target}/{type.Name.Replace("Actor", "")}");
+                if (!map.ContainsKey(target))
+                    map[target] = 0;
+                map[target]++;
+                options_type.Add(type);
+
+
+                var find_editor = editortypes.Find(x =>
+                {
+                    var _type = x;
+                    while (true)
+                    {
+                        if (_type.IsGenericType && _type.GetGenericTypeDefinition() == typeof(TweenActorEditor<>)
+                        && _type.GetGenericArguments()[0] == type)
+                        {
+                            return true;
+                        }
+                        _type = _type.BaseType;
+                        if (_type == null || _type == typeof(object))
+                        {
+                            return false;
+                        }
+                    }
+                });
+
+                if (find_editor != null)
+                    editor_actor.Add(type, Activator.CreateInstance(find_editor) as ITweenActorEditor);
+                else
+                    editor_actor.Add(type, Activator.CreateInstance(typeof(TweenActorEditor<>).MakeGenericType(type)) as ITweenActorEditor);
+                //}
+                //else
+                //{
+                //    Console.WriteLine();
+                //}
             }
             int count = map.Count;
 
@@ -140,6 +150,7 @@ namespace WooTween
             GUILayout.EndHorizontal();
         }
 
+        List<float> lens = new List<float>();
 
         public override void OnInspectorGUI()
         {
@@ -160,13 +171,25 @@ namespace WooTween
                 var type = options_type[index];
                 comp.actors.Add(Activator.CreateInstance(type) as TweenComponentActor);
             }
+            lens.Clear();
+            string actor_name = "";
+            for (int i = 0; i < comp.actors.Count; i++)
+            {
+                var actor = comp.actors[i];
+                var length = editor_actor[actor.GetType()].GetActorLength(actor);
 
+                lens.Add(length);
+                var _name = actor.GetType().Name;
+                if (_name.Length > actor_name.Length)
+                    actor_name = _name;
+            }
+            var size = EditorStyles.foldout.CalcSize(new GUIContent(actor_name));
 
             EditorGUI.BeginChangeCheck();
             for (int i = 0; i < comp.actors.Count; i++)
             {
                 var actor = comp.actors[i];
-                var mode = DrawActor(actor, i);
+                var mode = DrawActor(actor, i, size);
                 switch (mode)
                 {
                     case Mode.Remove:
@@ -212,6 +235,8 @@ namespace WooTween
                 EditorGUI.BeginChangeCheck();
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(comp.onBegin)));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(comp.onCancel)));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(comp.onRewind)));
+
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(comp.onComplete)));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(comp.onTick)));
 
@@ -230,18 +255,74 @@ namespace WooTween
         {
             Remove, MoveDown, MoveUp, None
         }
-        private Mode DrawActor(TweenComponentActor actor, int index)
+        private Mode DrawActor(TweenComponentActor actor, int index, Vector2 size)
         {
+            var length = lens[index];
+            var start = 0f;
+            var total_length = 0f;
+            if (comp.mode == TweenComponent.Mode.Sequence)
+            {
+                for (var i = 0; i < index; i++)
+                {
+                    start += lens[i];
+                }
+                total_length = start;
+                for (var i = index; i < lens.Count; i++)
+                {
+                    total_length += lens[i];
+                }
+            }
+            else
+            {
+                start = 0;
+                for (var i = 0; i < lens.Count; i++)
+                {
+                    total_length = Mathf.Max(total_length, lens[i]);
+                }
+            }
+            var end = start + length;
+
             Mode mode = Mode.None;
             EditorGUILayout.LabelField("", GUI.skin.textField, GUILayout.Height(25));
             var rect = EditorTools.RectEx.Zoom(GUILayoutUtility.GetLastRect(),
                 TextAnchor.MiddleRight, new Vector2(-20, 0));
             var rs = EditorTools.RectEx.VerticalSplit(rect, rect.width - 80, 4);
+
+
+
             EditorGUI.ProgressBar(rs[0], actor.percent, "");
+            {
+                var last_rect = rs[0];
+                last_rect.x += size.x;
+                last_rect.width -= size.x;
+                //EditorGUI.MinMaxSlider(last_rect, ref start, ref end, 0, total_length);
+
+                var width = last_rect.width;
+                var x_min = width * (start / total_length) + last_rect.x;
+
+                var x_max = width * (end / total_length) + last_rect.x;
+                var _rect = new Rect(x_min, last_rect.y, x_max - x_min, last_rect.height);
+                GUI.Box(_rect, string.Empty, EditorStyles.selectionRect);
+
+                float num_width = 100;
+                var __rect = new Rect(_rect.x, _rect.y, num_width, 18);
+                //__rect.center = new Vector2(_rect.x, _rect.y);
+                GUI.Label(_rect, $"{start}~{end}", new GUIStyle(EditorStyles.boldLabel)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                });
+                //__rect = new Rect(_rect.xMax - num_width, _rect.y, num_width, 18);
+                ////__rect.center = new Vector2(_rect.x, _rect.y);
+                //GUI.Label(__rect, end.ToString("0.00"), new GUIStyle(EditorStyles.boldLabel)
+                //{
+                //    alignment = TextAnchor.MiddleRight
+                //});
+
+            }
+
             var fold = EditorGUI.Foldout(rs[0], GetFoldout(actor), $"{actor.GetType().Name}", true);
             SetFoldout(actor, fold);
-
-
+            //GUI.Box(last_rect, "");
             var rss = RectEx.VerticalSplit(rs[1], rect.height, 0);
             if (GUI.Button(rss[0], EditorGUIUtility.TrIconContent("d_Toolbar Minus")))
                 mode = Mode.Remove;

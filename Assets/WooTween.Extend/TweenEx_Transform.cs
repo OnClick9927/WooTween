@@ -18,7 +18,6 @@ namespace WooTween
     }
     public static partial class TweenEx_Transform
     {
-
 #if UNITY_EDITOR
         class DoPositionArrayActorEditor : TweenActorEditor<DoPositionArrayActor>
         {

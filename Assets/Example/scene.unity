@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.37501884, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -335,11 +335,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mode: 0
   timeScale: 1
+  loops: 1
   id: 
-  PlayOnAwake: 1
+  PlayOnAwake: 0
   actors:
-  - rid: 8669666114341961729
-  - rid: 8669666114341961730
+  - rid: 2436648928868040705
+  - rid: 2436648931842064384
+  onRewind:
+    m_PersistentCalls:
+      m_Calls: []
   onCancel:
     m_PersistentCalls:
       m_Calls: []
@@ -355,39 +359,37 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 8669666114341961729
-      type: {class: TweenEx_UGUI/DoTextActor, ns: WooTween, asm: Assembly-CSharp}
+    - rid: 2436648928868040705
+      type: {class: TweenEx_Transform/DoShakePositionActor, ns: WooTween, asm: Assembly-CSharp}
       data:
+        id: 
+        duration: 0.85
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        ease: 0
         curveType: 0
         loopType: 0
         loops: 1
-        delay: 0.1
-        duration: 1
-        sourceDelta: 0
-        snap: 0
-        id: 
-        curve:
-          serializedVersion: 2
-          m_Curve: []
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        ease: 0
-        target: {fileID: 1722150966}
-        startType: 1
-        start: 
-        end: Test
-    - rid: 8669666114341961730
-      type: {class: TweenEx_UGUI/DoColorActor, ns: WooTween, asm: Assembly-CSharp}
-      data:
-        curveType: 0
-        loopType: 1
-        loops: 2
         delay: 0
-        duration: 1
         sourceDelta: 0
         snap: 0
+        target: {fileID: 384936797}
+        startType: 0
+        space: 0
+        start: {x: 0, y: 0, z: 0}
+        end: {x: 1, y: 1, z: 1}
+        strength: {x: 1, y: 1, z: 1}
+        frequency: 10
+        dampingRatio: 1
+    - rid: 2436648931842064384
+      type: {class: TweenEx_Transform/DoShakeScaleActor, ns: WooTween, asm: Assembly-CSharp}
+      data:
         id: 
+        duration: 1
         curve:
           serializedVersion: 2
           m_Curve: []
@@ -395,10 +397,19 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         ease: 0
-        target: {fileID: 66031086}
-        startType: 1
-        start: {r: 1, g: 1, b: 1, a: 1}
-        end: {r: 1, g: 0, b: 0, a: 1}
+        curveType: 0
+        loopType: 0
+        loops: 1
+        delay: 0
+        sourceDelta: 0
+        snap: 0
+        target: {fileID: 384936797}
+        startType: 0
+        start: {x: 1, y: 1, z: 1}
+        end: {x: 1, y: 1, z: 1}
+        strength: {x: 1, y: 1, z: 1}
+        frequency: 10
+        dampingRatio: 1
 --- !u!65 &384936794
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -470,7 +481,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 384936792}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

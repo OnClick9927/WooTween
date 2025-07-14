@@ -30,6 +30,10 @@ namespace WooTween
                 float colorDuration = duration * (i == 0 ? c.time : c.time - colors[i - 1].time);
                 s.NewContext(() => target.DoColor(c.color, colorDuration, snap));
             }
+#if UNITY_EDITOR
+            var end = duration * (1 - colors[len - 1].time);
+            s.NewContext(() => Tween.DoWait(end));
+#endif
             return s.Run();
         }
 

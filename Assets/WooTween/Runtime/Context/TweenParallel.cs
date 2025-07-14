@@ -7,7 +7,9 @@
  *History:        2018.11--
 *********************************************************************************/
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace WooTween
 {
@@ -15,10 +17,21 @@ namespace WooTween
     {
         public List<Func<ITweenContext>> list = new List<Func<ITweenContext>>();
         private List<ITweenContext> contexts = new List<ITweenContext>();
+        public override float GetPercent()
+        {
+            float result = 0;
 
+            for (int i = 0; i < contexts.Count; i++)
+            {
+                result = Mathf.Min(result, contexts[i].GetPercent());
+            }
+
+            return result;
+        }
         protected override void OnRewind()
         {
-            for (int i = 0; i < contexts.Count; i++) {
+            for (int i = 0; i < contexts.Count; i++)
+            {
 
                 contexts[i].Rewind();
             }
@@ -41,11 +54,17 @@ namespace WooTween
         protected override void Reset()
         {
             base.Reset();
+            loops = 1;
             this._time = this._delta = -1;
             list.Clear();
             contexts.Clear();
         }
-
+        private int _loops = 0;
+        private int loops = 1;
+        public void SetLoops(int loops)
+        {
+            this.loops = loops;
+        }
         private void OnContextEnd(ITweenContext context)
         {
 
@@ -53,7 +72,13 @@ namespace WooTween
             if (contexts.Count > 0)
                 contexts.Remove(context);
             if (contexts.Count == 0)
-                Complete();
+            {
+                _loops++;
+                if (loops == -1 || _loops < loops)
+                    OnceLoop();
+                else
+                    Complete();
+            }
         }
         private float _time, _delta;
         private void _OnTick(ITweenContext context, float time, float delta)
@@ -66,23 +91,42 @@ namespace WooTween
             }
         }
 
+        private void OnceLoop()
+        {
+            contexts.Clear();
+            for (int i = 0; i < list.Count; i++)
+            {
+                var func = list[i];
+                var context = func.Invoke();
+                context.OnCancel(OnContextEnd);
+                context.OnComplete(OnContextEnd);
+                context.OnTick(_OnTick);
+                context.SetTimeScale(timeScale);
+                contexts.Add(context);
+            }
+        }
         public override void Run()
         {
             base.Run();
-            contexts.Clear();
-            if (list.Count > 0)
-                for (int i = 0; i < list.Count; i++)
-                {
-                    var func = list[i];
-                    var context = func.Invoke();
-                    context.OnCancel(OnContextEnd);
-                    context.OnComplete(OnContextEnd);
-                    context.OnTick(_OnTick);
-                    context.SetTimeScale(timeScale);
-                    contexts.Add(context);
-                }
-            else
+            _loops = 0;
+            if (list.Count <= 0)
                 Complete();
+            else
+                OnceLoop();
+            //contexts.Clear();
+            //if (list.Count > 0)
+            //    for (int i = 0; i < list.Count; i++)
+            //    {
+            //        var func = list[i];
+            //        var context = func.Invoke();
+            //        context.OnCancel(OnContextEnd);
+            //        context.OnComplete(OnContextEnd);
+            //        context.OnTick(_OnTick);
+            //        context.SetTimeScale(timeScale);
+            //        contexts.Add(context);
+            //    }
+            //else
+            //    Complete();
         }
 
         public override ITweenContext SetTimeScale(float timeScale)

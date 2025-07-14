@@ -6,15 +6,20 @@
  *Description:    IFramework
  *History:        2018.11--
 *********************************************************************************/
+
 namespace WooTween
 {
-    public enum TweenType
+    public static partial class TweenEx_Common
     {
-        Normal, Shake, Punch, Jump, Bezier, Array,WaitTime
+        public class DoWaitActor : TweenComponentActor
+        {
+
+            protected override ITweenContext _Create()
+            {
+                return Tween.DoWait(duration);
+            }
+
+        }
     }
-
-
-
-
 
 }

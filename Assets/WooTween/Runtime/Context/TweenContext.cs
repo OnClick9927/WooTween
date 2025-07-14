@@ -46,6 +46,7 @@ namespace WooTween
     {
 
 
+
         private static Dictionary<int, T[]> arrays_Bezier = new Dictionary<int, T[]>();
         public static T[] AllocateArray(int length)
         {
@@ -207,8 +208,12 @@ namespace WooTween
             bool result = loops == -1 || _loop < loops;
             return result;
         }
+
+
+        public override float GetPercent() => Mathf.Clamp01(this.time / this.duration);
         private void CalculateView(float _time)
         {
+            if (_mode == TweenType.WaitTime) return;
             //var _time = this.time;
             var _dur = this.duration;
             var _percent = Mathf.Clamp01(_time / _dur);
@@ -278,6 +283,18 @@ namespace WooTween
             }
         }
 
+        public TweenContext<T, Target> WaitConfig( float duration)
+        {
+            //this.target = target;
+            _mode = TweenType.WaitTime;
+            //this._start = this.start = start;
+            //this._end = this.end = end;
+            this.duration = duration;
+            //this.getter = getter;
+            //this.setter = setter;
+            //this.snap = snap;
+            return this;
+        }
 
         public TweenContext<T, Target> Config(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, bool snap)
         {

@@ -25,6 +25,8 @@ namespace WooTween
         bool paused { get; }
 
         TweenContextState state {  get; }
+
+        float GetPercent();
     }
 
 
@@ -33,6 +35,7 @@ namespace WooTween
     public interface ITweenGroup : ITweenContext
     {
         ITweenGroup NewContext(Func<ITweenContext> func);
+        void SetLoops(int loops);
     }
 
 }
