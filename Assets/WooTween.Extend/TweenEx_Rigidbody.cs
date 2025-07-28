@@ -42,7 +42,7 @@ namespace WooTween
         public static ITweenContext<Vector3, Rigidbody> DoShakeRotation(this Rigidbody target, Vector3 end, Vector3 strength, float duration, int frequency = 10, float dampingRatio = 1, bool snap = false)
 => target.DoShakeRotation(target.rotation.eulerAngles, end, strength, duration, frequency, dampingRatio, snap);
 
-        public class DoShakePositionActor : DoPositionActor
+        public class DoShakePositionActor_Rigidbody : DoPositionActor_Rigidbody
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -54,7 +54,7 @@ namespace WooTween
                 return target.DoShakePosition(start, end, strength, duration, frequency, dampingRatio, snap);
             }
         }
-        public class DoPunchPositionActor : DoPositionActor
+        public class DoPunchPositionActor_Rigidbody : DoPositionActor_Rigidbody
         {
             public Vector3 strength = Vector3.one;
             public int frequency = 10;
@@ -66,7 +66,7 @@ namespace WooTween
                 return target.DoPunchPosition(start, end, strength, duration, frequency, dampingRatio, snap);
             }
         }
-        public class DoPositionActor : TweenComponentActor<Vector3, Rigidbody>
+        public class DoPositionActor_Rigidbody : TweenComponentActor<Vector3, Rigidbody>
         {
             public StartValueType startType;
             public Vector3 start = Vector3.zero;
@@ -79,7 +79,7 @@ namespace WooTween
             }
         }
 
-        public class DoShakeRotationActor : DoRotationActor
+        public class DoShakeRotationActor_Rigidbody : DoRotationActor_Rigidbody
         {
 
             public Vector3 strength = Vector3.one;
@@ -92,7 +92,7 @@ namespace WooTween
                 return target.DoShakeRotation(start, end, strength, duration, frequency, dampingRatio, snap);
             }
         }
-        public class DoPunchRotationActor : DoRotationActor
+        public class DoPunchRotationActor_Rigidbody : DoRotationActor_Rigidbody
         {
 
             public Vector3 strength = Vector3.one;
@@ -105,7 +105,7 @@ namespace WooTween
                 return target.DoPunchRotation(start, end, strength, duration, frequency, dampingRatio, snap);
             }
         }
-        public class DoRotationActor : TweenComponentActor<Vector3, Rigidbody>
+        public class DoRotationActor_Rigidbody : TweenComponentActor<Vector3, Rigidbody>
         {
             public StartValueType startType;
             public Vector3 start = Vector3.zero;

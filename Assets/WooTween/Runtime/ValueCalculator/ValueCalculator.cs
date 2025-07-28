@@ -49,7 +49,7 @@ namespace WooTween
 
             if (mode == TweenType.Shake || mode == TweenType.Punch)
             {
-                strength = MultiStrength(strength, end);
+                //strength = MultiStrength(strength, end);
                 var s = Multi(strength, EvaluateStrength(frequency, dampingRatio, percent));
                 if (mode == TweenType.Punch)
                     dest = Add(dest, s);

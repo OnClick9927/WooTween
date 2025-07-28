@@ -67,7 +67,7 @@ namespace WooTween
             return s.Run();
         }
 
-        public class DoVectorActor : TweenComponentActor<Vector4, Material>
+        public class DoMaterialVectorActor : TweenComponentActor<Vector4, Material>
         {
             public StartValueType startType;
             public string name;
@@ -95,7 +95,7 @@ namespace WooTween
                 return target.DoColor(name, start, end, duration, snap);
             }
         }
-        public class DoFloatActor : TweenComponentActor<float, Material>
+        public class DoMaterialFloatActor : TweenComponentActor<float, Material>
         {
             public StartValueType startType;
             public string name;
@@ -108,7 +108,7 @@ namespace WooTween
                 return target.DoFloat(name, start, end, duration, snap);
             }
         }
-        public class DoIntActor : TweenComponentActor<float, Material>
+        public class DoMaterialIntActor : TweenComponentActor<float, Material>
         {
             public StartValueType startType;
             public string name;
@@ -121,7 +121,7 @@ namespace WooTween
                 return target.DoInt(name, start, end, duration);
             }
         }
-        public class DoColorActor : TweenComponentActor<Color, SpriteRenderer>
+        public class DoColorActor_SpriteRenderer : TweenComponentActor<Color, SpriteRenderer>
         {
             public StartValueType startType;
             public Color start = Color.white;
@@ -133,7 +133,7 @@ namespace WooTween
                 return target.DoColor(start, end, duration, snap);
             }
         }
-        public class DoGradientColorActor : TweenGroupComponentActor<SpriteRenderer>
+        public class DoGradientColorActor_SpriteRenderer : TweenGroupComponentActor<SpriteRenderer>
         {
             public Gradient gradient;
             protected override ITweenGroup OnCreate()
