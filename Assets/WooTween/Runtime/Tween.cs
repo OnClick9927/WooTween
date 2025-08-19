@@ -51,6 +51,7 @@ namespace WooTween
             return context;
         }
 
+
         public static ITweenContext DoWait(float duration,
          bool autoRun = true)
         {
@@ -79,7 +80,8 @@ namespace WooTween
             context.AsInstance().JumpConfig(target, start, end, duration, getter, setter, snap, strength, jumpCount, jumpDamping);
             return context;
         }
-        public static ITweenContext<T, Target> DoArray<T, Target>(Target target, float duration, Func<Target, T> getter, Action<Target, T> setter, T[] points, bool snap = false, bool autoRun = true)
+        public static ITweenContext<T, Target> DoArray<T, Target>(Target target, float duration,
+            Func<Target, T> getter, Action<Target, T> setter, T[] points, bool snap = false, bool autoRun = true)
         {
             var context = Allocate<T, Target>(autoRun);
             context.AsInstance().ArrayConfig(target, duration, getter, setter, snap, points);
@@ -94,6 +96,86 @@ namespace WooTween
 
 
 
+
+
+
+
+        private static Dictionary<string, object> samples = new Dictionary<string, object>();
+        private static ITweenContext<T, Target> GetSample<T, Target>()
+        {
+            var key = $"sample_{typeof(T)}_{typeof(Target)}";
+            if (samples.TryGetValue(key, out var obj))
+                return obj as ITweenContext<T, Target>;
+            var allocate = Allocate<T, Target>(false);
+            allocate.SetId(key);
+            samples[key] = allocate;
+            return allocate;
+        }
+        public static void Sample<T, Target>(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, bool snap, float progress)
+        {
+            var context = GetSample<T, Target>();
+            var ins = context.AsInstance();
+            ins.Config(target, start, end, duration, getter, setter, snap);
+            ins.Sample(progress * duration);
+        }
+        public static void SampleWait(float duration, float progress)
+        {
+            var context = GetSample<float, System.Object>();
+            var ins = context.AsInstance();
+            ins.WaitConfig(duration);
+            ins.Sample(progress * duration);
+        }
+        public static void SampleShake<T, Target>(Target target, T start, T end, float duration,
+            Func<Target, T> getter, Action<Target, T> setter, T strength,
+            int frequency = 10, float dampingRatio = 1, bool snap = false, float progress = 1)
+        {
+            var context = GetSample<T, Target>();
+            var ins = context.AsInstance();
+            ins.ShakeConfig(target, start, end, duration, getter, setter, snap, strength, frequency, dampingRatio);
+            ins.Sample(progress * duration);
+        }
+        public static void SamplePunch<T, Target>(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, T strength,
+int frequency = 10, float dampingRatio = 1, bool snap = false, float progress = 1)
+        {
+            var context = GetSample<T, Target>();
+            var ins = context.AsInstance();
+            ins.PunchConfig(target, start, end, duration, getter, setter, snap, strength, frequency, dampingRatio);
+            ins.Sample(progress * duration);
+        }
+        public static void SampleJump<T, Target>(Target target, T start, T end, float duration,
+            Func<Target, T> getter, Action<Target, T> setter, T strength,
+int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1)
+        {
+            var context = GetSample<T, Target>();
+            var ins = context.AsInstance();
+            ins.JumpConfig(target, start, end, duration, getter, setter, snap, strength, jumpCount, jumpDamping);
+            ins.Sample(progress * duration);
+        }
+        public static void SampleArray<T, Target>(Target target, float duration,
+    Func<Target, T> getter, Action<Target, T> setter, T[] points, bool snap = false , float progress = 1)
+        {
+            var context = GetSample<T, Target>();
+            var ins = context.AsInstance();
+            ins.ArrayConfig(target, duration, getter, setter, snap, points);
+            ins.Sample(progress * duration);
+        }
+        public static void SampleBezier<T, Target>(Target target, float duration, 
+            Func<Target, T> getter, Action<Target, T> setter, T[] points, bool snap = false, float progress = 1)
+        {
+            var context = GetSample<T, Target>();
+            var ins = context.AsInstance();
+            ins.BezierConfig(target, duration, getter, setter, snap, points);
+            ins.Sample(progress * duration);
+        }
+
+
+
+
+
+
+
+
+
         internal static event Action<ITweenContext> onContextAllocate, onContextRecycle;
         internal static void RecycleContext(ITweenContext context)
         {
@@ -101,7 +183,7 @@ namespace WooTween
             onContextRecycle?.Invoke(context);
         }
 
-        private static ITweenContext<T, Target> Allocate<T, Target>(bool autoRun)
+        internal static ITweenContext<T, Target> Allocate<T, Target>(bool autoRun)
         {
             var context = GetScheduler().AllocateContext<T, Target>(autoRun);
             onContextAllocate?.Invoke(context);

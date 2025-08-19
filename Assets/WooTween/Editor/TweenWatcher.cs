@@ -48,7 +48,8 @@ namespace WooTween
             }
             protected override void SingleClickedItem(int id)
             {
-                _selected = contexts[id];
+                if (id < contexts.Count)
+                    _selected = contexts[id];
 
                 base.SingleClickedItem(id);
             }
@@ -119,12 +120,13 @@ namespace WooTween
         TreeViewState state = new TreeViewState();
         private static void OnModeChange(UnityEditor.PlayModeStateChange mode)
         {
-            if (mode== PlayModeStateChange.ExitingEditMode || mode== PlayModeStateChange.ExitingPlayMode)
+            if (mode == PlayModeStateChange.ExitingEditMode || mode == PlayModeStateChange.ExitingPlayMode)
             {
                 contexts.Clear();
                 _selected = null;
+                tree.Reload();
             }
-      
+
         }
         static void ReloadWindow()
         {
@@ -158,7 +160,7 @@ namespace WooTween
             });
             ReloadWindow();
         }
-   
+
         private void OnEnable()
         {
             tree = new Tree(state);
@@ -201,7 +203,7 @@ namespace WooTween
         {
 
 
-            if (_selected!=null)
+            if (_selected != null)
             {
                 split.OnGUI(new Rect(Vector2.zero, position.size));
                 tree.OnGUI(split.rects[0]);
@@ -233,7 +235,7 @@ namespace WooTween
                 GUILayout.Space(10);
                 scroll2 = GUILayout.BeginScrollView(scroll2, EditorStyles.helpBox, GUILayout.Height(150));
                 EditorTools.DrawStackTrace(context.stack);
-             
+
                 GUILayout.EndScrollView();
 
 

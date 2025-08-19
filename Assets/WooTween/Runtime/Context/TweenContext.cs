@@ -169,7 +169,7 @@ namespace WooTween
                 _end = end;
             }
             SetTime(0);
-            CalculateView(0);
+            Sample(0);
         }
 
         protected override bool MoveNext(float delta)
@@ -178,7 +178,7 @@ namespace WooTween
             if (!_set2Start_called && getter != null)
             {
 
-                CalculateView(0);
+                Sample(0);
                 _set2Start_called = true;
             }
             if (_wait_delay_flag)
@@ -195,7 +195,7 @@ namespace WooTween
                 if (targetTime >= duration)
                 {
                     SetTime(duration);
-                    CalculateView(duration);
+                    Sample(duration);
                     OnLoopEnd();
                     _loop++;
                     SetTime(0);
@@ -203,7 +203,7 @@ namespace WooTween
                 else
                 {
                     SetTime(targetTime);
-                    CalculateView(targetTime);
+                    Sample(targetTime);
                 }
             bool result = loops == -1 || _loop < loops;
             return result;
@@ -211,7 +211,13 @@ namespace WooTween
 
 
         public override float GetPercent() => Mathf.Clamp01(this.time / this.duration);
-        private void CalculateView(float _time)
+
+
+
+
+
+
+        public void Sample(float _time)
         {
             if (_mode == TweenType.WaitTime) return;
             //var _time = this.time;
