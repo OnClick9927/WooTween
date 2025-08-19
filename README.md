@@ -8,3 +8,4 @@
 * 支持 DoPath Scene 编辑
 * 支持采样 可以与[ActionEditor](https://github.com/OnClick9927/ActionEditor)配合使用（实现类似于unity animation 窗口效果）
 ### upm地址  https://github.com/OnClick9927/WooTween.git#upm
+<img width="755" height="611" alt="image" src="https://github.com/user-attachments/assets/c2904f06-f670-4f1b-a199-d32560a3e065" />
