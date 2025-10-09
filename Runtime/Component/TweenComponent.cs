@@ -105,6 +105,7 @@ namespace WooTween
                 {
 
                     var actor = actors[i];
+                    if (!actor.active) continue;
                     actor.transform = transform;
                     group.NewContext(actor.Create);
                 }

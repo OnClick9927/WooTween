@@ -19,6 +19,7 @@ namespace WooTween
 
         public string id;
         public float duration = 1;
+        public bool active = true;
 
         internal ITweenContext Create()
         {

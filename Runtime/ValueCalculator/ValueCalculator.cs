@@ -16,26 +16,26 @@ namespace WooTween
 
         public T Calculate(TweenType mode, T start, T end, float percent, T srcValue,
             float srcPercent, bool snap, T strength, int frequency, float dampingRatio, int jumpCount, float jumpDamping,
-            T[] points, int pointsLength)
+            ArrayBuffer<T> points)
         {
             T dest = default(T);
             if (mode == TweenType.Bezier || mode == TweenType.Array)
             {
                 if (percent == 1)
-                    dest = points[pointsLength - 1];
+                    dest = points[points.Length - 1];
                 else
                 {
                     if (mode == TweenType.Bezier)
                     {
-                        float[] tempCoefficients = EvaluateBezier(percent, pointsLength);
-                        for (int i = 0; i < pointsLength; i++)
+                        float[] tempCoefficients = EvaluateBezier(percent, points.Length);
+                        for (int i = 0; i < points.Length; i++)
                             dest = Add(dest, Multi(points[i], tempCoefficients[i]));
                         CycleArray(tempCoefficients);
                     }
                     else
                     {
                         T _start, _end; float _percent;
-                        EvaluateArray(percent, points, pointsLength, out _start, out _end, out _percent);
+                        EvaluateArray(percent, points, points.Length, out _start, out _end, out _percent);
                         dest = Lerp(_start, _end, _percent);
                     }
                 }
@@ -127,7 +127,7 @@ namespace WooTween
 
             return tempCoefficients;
         }
-        private static void EvaluateArray(float percent, T[] array, int length, out T start, out T end, out float _percent)
+        private static void EvaluateArray(float percent, ArrayBuffer<T> array, int length, out T start, out T end, out float _percent)
         {
             var temp = percent * (length - 1);
             var floor = Mathf.FloorToInt(temp);
