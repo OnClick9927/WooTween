@@ -34,7 +34,12 @@ namespace WooTween
         protected override ITweenContext _Create()
         {
             if (target == null)
-                target = transform.GetComponent<TTarget>();
+            {
+                if (typeof(TTarget) == typeof(Transform))
+                    target = (TTarget)(object)transform;
+                else
+                    target = transform.GetComponent<TTarget>();
+            }
 
             if (target == null)
             {

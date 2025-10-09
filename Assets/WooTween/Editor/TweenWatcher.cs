@@ -124,7 +124,7 @@ namespace WooTween
             {
                 contexts.Clear();
                 _selected = null;
-                tree.Reload();
+                tree?.Reload();
             }
 
         }

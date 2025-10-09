@@ -6,7 +6,6 @@
  *Description:    IFramework
  *History:        2018.11--
 *********************************************************************************/
-using System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -44,28 +43,6 @@ namespace WooTween
 
     sealed class TweenContext<T, Target> : TweenContext, ITweenContext<T, Target>
     {
-
-
-
-        private static Dictionary<int, T[]> arrays_Bezier = new Dictionary<int, T[]>();
-        public static T[] AllocateArray(int length)
-        {
-            var min = 16;
-            while (min < length)
-                min *= 2;
-            T[] result = null;
-            if (arrays_Bezier.TryGetValue(min, out result))
-            {
-                return result;
-            }
-            return new T[min];
-        }
-        public static void CycleArray(T[] arr)
-        {
-            arrays_Bezier[arr.Length] = arr;
-        }
-
-
         private static ValueCalculator<T> _calc;
 
         public Target target;
@@ -93,8 +70,11 @@ namespace WooTween
         [Space(20)]
         public T _start;
         public T _end;
-        public T[] _points;
-        public int _points_length;
+
+        public ArrayBuffer<T> _points;
+
+        //public T[] _points;
+        //public int _points_length;
         public bool _wait_delay_flag;
         public int _loop;
         public bool _set2Start_called = false;
@@ -130,38 +110,26 @@ namespace WooTween
 
             if (this._points != null)
             {
-                CycleArray(this._points);
+                StaticPool<ArrayBuffer<T>>.Set(this._points);
                 this._points = null;
             }
             if (_mode == TweenType.Bezier || _mode == TweenType.Array)
             {
-                _points_length = this.points.Length;
-                this._points = AllocateArray(_points_length);
-                for (int i = 0; i < _points_length; i++)
-                {
-                    this._points[i] = this.points[i];
-                }
+                this._points = StaticPool<ArrayBuffer<T>>.Get();
+                this._points.Read(this.points);
             }
 
         }
         private bool IsSameArray()
         {
-            for (int i = 0; i < _points_length; i++)
-            {
-                if (!this._points[i].Equals(this.points[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this._points.IsSameArray(this.points);
         }
         protected override void OnRewind()
         {
             if (_mode == TweenType.Bezier || _mode == TweenType.Array)
             {
                 if (!IsSameArray())
-                    for (int i = 0; i < _points_length; i++)
-                        this._points[i] = this.points[i];
+                    this._points.Read(this.points);
             }
             else
             {
@@ -228,7 +196,7 @@ namespace WooTween
 
             var src = getter.Invoke(target);
             T _cur = calc.Calculate(_mode, _start, _end, _convertPercent, src, _deltaPercent, snap, strength,
-                frequency, dampingRatio, jumpCount, jumpDamping, _points, _points_length);
+                frequency, dampingRatio, jumpCount, jumpDamping, _points);
             if (!src.Equals(_cur))
             {
                 setter?.Invoke(target, _cur);
@@ -253,19 +221,14 @@ namespace WooTween
                 {
 
                     bool same = IsSameArray();
-                    for (int i = 0; i < _points_length; i++)
-                    {
-                        if (same)
-                            this._points[i] = this.points[_points_length - 1 - i];
-                        else
-                            this._points[i] = this.points[i];
-                    }
+                    this._points.Read(this.points, same);
                 }
                 else if (loopType == LoopType.Add)
                 {
-                    var gap = calc.Minus(this._points[_points_length - 1], this._points[0]);
+                    var length = this._points.Length;
+                    var gap = calc.Minus(this._points[length - 1], this._points[0]);
 
-                    for (int i = 0; i < _points_length; i++)
+                    for (int i = 0; i < length; i++)
                     {
                         this._points[i] = calc.Add(this._points[i], gap);
                     }
@@ -289,7 +252,7 @@ namespace WooTween
             }
         }
 
-        public TweenContext<T, Target> WaitConfig( float duration)
+        public TweenContext<T, Target> WaitConfig(float duration)
         {
             //this.target = target;
             _mode = TweenType.WaitTime;

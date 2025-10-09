@@ -11,19 +11,24 @@ using UnityEngine;
 
 namespace WooTween
 {
-    public abstract class TweenGroupComponentActor: TweenComponentActor
+    public abstract class TweenGroupComponentActor : TweenComponentActor
     {
         public int loops = 1;
         public bool snap = false;
 
     }
-    public abstract class TweenGroupComponentActor<TTarget> : TweenGroupComponentActor
+    public abstract class TweenGroupComponentActor<TTarget> : TweenGroupComponentActor 
     {
 
         protected override ITweenContext _Create()
         {
             if (target == null)
-                target = transform.GetComponent<TTarget>();
+            {
+                if (typeof(TTarget) == typeof(Transform))
+                    target = (TTarget)(object)transform;
+                else
+                    target = transform.GetComponent<TTarget>();
+            }
 
             if (target == null)
             {

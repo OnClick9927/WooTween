@@ -284,13 +284,20 @@ namespace WooTween
 
             Mode mode = Mode.None;
             EditorGUILayout.LabelField("", GUI.skin.textField, GUILayout.Height(25));
-            var rect = EditorTools.RectEx.Zoom(GUILayoutUtility.GetLastRect(),
-                TextAnchor.MiddleRight, new Vector2(-20, 0));
-            var rs = EditorTools.RectEx.VerticalSplit(rect, rect.width - 80, 4);
+            //var _last_rect = GUILayoutUtility.GetLastRect();
+            var rs = RectEx.VerticalSplit(
+                RectEx.Zoom(GUILayoutUtility.GetLastRect(), TextAnchor.MiddleRight, new Vector2(-10, 0)), 20);
+            actor.active = EditorGUI.ToggleLeft(rs[0], "", actor.active);
+            var rect = rs[1];
+            rs = EditorTools.RectEx.VerticalSplit(rect, rect.width - 80, 4);
 
-
-
-            EditorGUI.ProgressBar(rs[0], actor.percent, "");
+            //EditorGUI.ProgressBar(rs[0], actor.percent, "");
+            var tx_rect = rs[0];
+            //var len = tx_rect.width;
+            tx_rect.width *= actor.percent;
+            GUI.color = new Color(0, 0.2f, 0.6f, 0.5f);
+            GUI.DrawTexture(tx_rect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
             {
                 var last_rect = rs[0];
                 last_rect.x += size.x;
@@ -319,9 +326,14 @@ namespace WooTween
                 //});
 
             }
+            var fold = GetFoldout(actor);
+            if (GUI.Button(rs[0], $"{actor.GetType().Name}", GUI.skin.label))
+            {
+                fold = !fold;
+                SetFoldout(actor, fold);
+            }
 
-            var fold = EditorGUI.Foldout(rs[0], GetFoldout(actor), $"{actor.GetType().Name}", true);
-            SetFoldout(actor, fold);
+            //var fold = EditorGUI.Foldout(rs[0], GetFoldout(actor), $"{actor.GetType().Name}", true);
             //GUI.Box(last_rect, "");
             var rss = RectEx.VerticalSplit(rs[1], rect.height, 0);
             if (GUI.Button(rss[0], EditorGUIUtility.TrIconContent("d_Toolbar Minus")))
