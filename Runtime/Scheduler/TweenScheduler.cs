@@ -147,7 +147,13 @@ namespace WooTween
 
 
         }
-
+        public bool IsRunning(ITweenContext context)
+        {
+            if (context == null) return false;
+            if (context is ITweenGroup group)
+                return contexts_group.Contains(group);
+            return contexts_wait_to_run.Contains(context) || contexts_run.Contains(context);
+        }
         internal void AddToRun(ITweenContext context)
         {
             if (context == null || contexts_run.Contains(context))
