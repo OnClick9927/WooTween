@@ -230,7 +230,7 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
         }
         public static void KillTweens(this object obj) => GetScheduler().KillTweens(obj);
         public static void KillTweens() => GetScheduler().KillTweens();
-        public static void IsRunning(ITweenContext context) => GetScheduler().IsRunning(context);
+        public static bool IsRunning(ITweenContext context) => GetScheduler().IsRunning(context);
 
 
         public static T Pause<T>(this T t) where T : ITweenContext
