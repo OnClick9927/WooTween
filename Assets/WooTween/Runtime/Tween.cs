@@ -223,13 +223,14 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
         internal static TweenContextBase AsContextBase(this ITweenContext t) => t as TweenContextBase;
         public static void Cancel<T>(this T context) where T : ITweenContext => context.Complete(false);
 
-        public static T AddTo<T>(this T context, object view) where T : ITweenContext
+        public static T SetOwner<T>(this T context, object view) where T : ITweenContext
         {
             context.AsContextBase().SetOwner(view);
             return context;
         }
         public static void KillTweens(this object obj) => GetScheduler().KillTweens(obj);
         public static void KillTweens() => GetScheduler().KillTweens();
+        public static void IsRunning(ITweenContext context) => GetScheduler().IsRunning(context);
 
 
         public static T Pause<T>(this T t) where T : ITweenContext
