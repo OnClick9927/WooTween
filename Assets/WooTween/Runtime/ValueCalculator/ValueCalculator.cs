@@ -6,7 +6,6 @@
  *Description:    IFramework
  *History:        2018.11--
 *********************************************************************************/
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace WooTween
@@ -27,10 +26,7 @@ namespace WooTween
                 {
                     if (mode == TweenType.Bezier)
                     {
-                        float[] tempCoefficients = EvaluateBezier(percent, points.Length);
-                        for (int i = 0; i < points.Length; i++)
-                            dest = Add(dest, Multi(points[i], tempCoefficients[i]));
-                        CycleArray(tempCoefficients);
+                        dest = EvaluateBezier(percent, points);
                     }
                     else
                     {
@@ -97,35 +93,21 @@ namespace WooTween
         const float E = 2.71828175F;
         const float PI = 3.14159274F;
 
-        private static Dictionary<int, float[]> arrays = new Dictionary<int, float[]>();
-        private static float[] AllocateArray(int length)
-        {
-            var min = 16;
-            while (min < length)
-                min *= 2;
-            float[] result = null;
-            if (arrays.TryGetValue(min, out result))
-            {
-                return result;
-            }
-            return new float[min];
-        }
-        private static void CycleArray(float[] arr)
-        {
-            arrays[arr.Length] = arr;
-        }
-        private static float[] EvaluateBezier(float percent, int length)
+        private T EvaluateBezier(float percent, ArrayBuffer<T> points)
         {
             float u = 1f - percent;
+            int lastIndex = points.Length - 1;
+            float coefficient = Mathf.Pow(u, lastIndex);
+            float coefficientRatio = percent / u;
+            T result = Multi(points[0], coefficient);
 
-            // 使用Bernstein多项式递推关系优化计算
-            float[] tempCoefficients = AllocateArray(length);
-            tempCoefficients[0] = Mathf.Pow(u, length - 1);
+            for (int i = 1; i <= lastIndex; i++)
+            {
+                coefficient *= coefficientRatio * (points.Length - i) / i;
+                result = Add(result, Multi(points[i], coefficient));
+            }
 
-            for (int i = 1; i < length; i++)
-                tempCoefficients[i] = tempCoefficients[i - 1] * (percent / u) * (length - i) / i;
-
-            return tempCoefficients;
+            return result;
         }
         private static void EvaluateArray(float percent, ArrayBuffer<T> array, int length, out T start, out T end, out float _percent)
         {

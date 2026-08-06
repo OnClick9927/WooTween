@@ -7,6 +7,7 @@
  *History:        2018.11--
 *********************************************************************************/
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace WooTween
@@ -20,8 +21,7 @@ namespace WooTween
             if (paused || isDone) return;
             if (!MoveNext(deltaTime))
             {
-                InvokeComplete();
-                TryRecycle();
+                Complete();
             }
             else
             {
@@ -54,6 +54,7 @@ namespace WooTween
         public float duration;
         public float sourceDelta;
         public IValueEvaluator evaluator;
+        private AnimationCurveEvaluator animationCurveEvaluator;
         public int loops;
         public LoopType loopType;
         public Func<Target, T> getter;
@@ -93,7 +94,26 @@ namespace WooTween
         protected override void Reset()
         {
             base.Reset();
-            OnRun();
+            ReleasePointBuffer();
+
+            target = default(Target);
+            start = default(T);
+            end = default(T);
+            _start = default(T);
+            _end = default(T);
+            strength = default(T);
+            points = null;
+            getter = null;
+            setter = null;
+            _mode = TweenType.Normal;
+            duration = 0f;
+            jumpCount = 0;
+            jumpDamping = 0f;
+            frequency = 0;
+            dampingRatio = 0f;
+            if (animationCurveEvaluator != null)
+                animationCurveEvaluator.curve = null;
+
             this.SetEvaluator(EaseEvaluator.Default);
             this.SetSourceDelta(0);
             this.SetDelay(0);
@@ -108,28 +128,47 @@ namespace WooTween
             _end = end;
             _set2Start_called = false;
 
-            if (this._points != null)
-            {
-                StaticPool<ArrayBuffer<T>>.Set(this._points);
-                this._points = null;
-            }
             if (_mode == TweenType.Bezier || _mode == TweenType.Array)
             {
-                this._points = StaticPool<ArrayBuffer<T>>.Get();
-                this._points.Read(this.points);
+                CachePoints();
             }
-
+            else
+            {
+                ReleasePointBuffer();
+            }
         }
+
+        private void CachePoints()
+        {
+            if (points == null)
+                return;
+
+            if (_points == null)
+                _points = StaticPool<ArrayBuffer<T>>.Get();
+
+            if (!_points.IsSameArray(points))
+                _points.Read(points);
+        }
+
+        private void ReleasePointBuffer()
+        {
+            if (_points == null)
+                return;
+
+            _points.Clear();
+            StaticPool<ArrayBuffer<T>>.Set(_points);
+            _points = null;
+        }
+
         private bool IsSameArray()
         {
-            return this._points.IsSameArray(this.points);
+            return _points != null && _points.IsSameArray(points);
         }
         protected override void OnRewind()
         {
             if (_mode == TweenType.Bezier || _mode == TweenType.Array)
             {
-                if (!IsSameArray())
-                    this._points.Read(this.points);
+                CachePoints();
             }
             else
             {
@@ -197,7 +236,7 @@ namespace WooTween
             var src = getter.Invoke(target);
             T _cur = calc.Calculate(_mode, _start, _end, _convertPercent, src, _deltaPercent, snap, strength,
                 frequency, dampingRatio, jumpCount, jumpDamping, _points);
-            if (!src.Equals(_cur))
+            if (!EqualityComparer<T>.Default.Equals(src, _cur))
             {
                 setter?.Invoke(target, _cur);
 # if UNITY_EDITOR
@@ -210,6 +249,34 @@ namespace WooTween
                 }
 #endif
             }
+        }
+
+        public void SampleOnce(float time)
+        {
+            try
+            {
+                if (_mode == TweenType.Bezier || _mode == TweenType.Array)
+                    CachePoints();
+                Sample(time);
+            }
+            finally
+            {
+                ReleaseSampleReferences();
+            }
+        }
+
+        private void ReleaseSampleReferences()
+        {
+            ReleasePointBuffer();
+            target = default(Target);
+            start = default(T);
+            end = default(T);
+            _start = default(T);
+            _end = default(T);
+            strength = default(T);
+            points = null;
+            getter = null;
+            setter = null;
         }
 
 
@@ -267,6 +334,7 @@ namespace WooTween
 
         public TweenContext<T, Target> Config(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, bool snap)
         {
+            ReleasePointBuffer();
             this.target = target;
             _mode = TweenType.Normal;
             this._start = this.start = start;
@@ -275,6 +343,7 @@ namespace WooTween
             this.getter = getter;
             this.setter = setter;
             this.snap = snap;
+            points = null;
             return this;
         }
         public TweenContext<T, Target> ShakeConfig(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, bool snap, T strength,
@@ -337,7 +406,20 @@ namespace WooTween
         }
 
         public void SetSourceDelta(float delta) => sourceDelta = delta;
-        public void SetEvaluator(IValueEvaluator evaluator) => this.evaluator = evaluator;
+        public void SetEvaluator(IValueEvaluator evaluator)
+        {
+            if (animationCurveEvaluator != null && !ReferenceEquals(evaluator, animationCurveEvaluator))
+                animationCurveEvaluator.curve = null;
+            this.evaluator = evaluator;
+        }
+        public void SetAnimationCurve(AnimationCurve curve)
+        {
+            if (animationCurveEvaluator == null)
+                animationCurveEvaluator = new AnimationCurveEvaluator(curve);
+            else
+                animationCurveEvaluator.curve = curve;
+            evaluator = animationCurveEvaluator;
+        }
         public void SetSnap(bool value) => snap = value;
 
 

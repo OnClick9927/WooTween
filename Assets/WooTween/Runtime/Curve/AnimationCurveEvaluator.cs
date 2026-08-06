@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace WooTween
 {
-    struct AnimationCurveEvaluator : IValueEvaluator
+    sealed class AnimationCurveEvaluator : IValueEvaluator
     {
         public AnimationCurve curve;
 

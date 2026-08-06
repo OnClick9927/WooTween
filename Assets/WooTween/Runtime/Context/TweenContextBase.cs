@@ -17,9 +17,15 @@ namespace WooTween
 
     abstract class TweenContextBase : ITweenContext, IPoolObject
     {
+        internal int waitIndex = -1;
+        internal int runIndex = -1;
+        internal bool inRunList;
+        internal bool inGroupList;
+        internal bool recyclePending;
+
         public void Recycle()
         {
-            if (!valid) return;
+            if (!valid || recyclePending) return;
             Tween.RecycleContext(this);
         }
         protected void TryRecycle()
@@ -56,6 +62,11 @@ namespace WooTween
 
         protected virtual void Reset()
         {
+            waitIndex = -1;
+            runIndex = -1;
+            inRunList = false;
+            inGroupList = false;
+            recyclePending = false;
             paused = false;
             isDone = false;
             canceled = false;
@@ -119,7 +130,10 @@ namespace WooTween
         {
             if (canceled) return;
             InvokeCancel();
+            if (!valid || recyclePending || !canceled)
+                return;
             StopChildren();
+            Tween.DetachContext(this);
             TryRecycle();
 
         }
@@ -127,7 +141,10 @@ namespace WooTween
         {
             if (isDone) return;
             InvokeComplete();
+            if (!valid || recyclePending || !isDone)
+                return;
             StopChildren();
+            Tween.DetachContext(this);
             TryRecycle();
         }
         public void Stop()
@@ -135,12 +152,13 @@ namespace WooTween
             if (!valid) return;
             SetCancel();
             StopChildren();
+            Tween.DetachContext(this);
             TryRecycle();
         }
 
         public void Complete(bool callComplete)
         {
-            if (isDone || canceled) return;
+            if (!valid || recyclePending || isDone || canceled) return;
             if (callComplete)
                 Complete();
             else
@@ -191,9 +209,28 @@ namespace WooTween
 
         public void Rewind()
         {
-            Stop();
-            onRewind?.Invoke(this);
-            OnRewind();
+            if (!valid || recyclePending)
+                return;
+
+            var cycle = autoCycle;
+            autoCycle = false;
+            try
+            {
+                Stop();
+                Tween.DetachContext(this);
+                paused = false;
+                canceled = false;
+                isDone = false;
+                state = TweenContextState.Allocate;
+                onRewind?.Invoke(this);
+                if (valid && !recyclePending)
+                    OnRewind();
+            }
+            finally
+            {
+                if (valid && !recyclePending)
+                    autoCycle = cycle;
+            }
         }
         protected abstract void OnRewind();
 

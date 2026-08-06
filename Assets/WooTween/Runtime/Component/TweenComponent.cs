@@ -80,6 +80,7 @@ namespace WooTween
         {
             context?.SetAutoCycle(true);
             context?.Cancel();
+            context?.Recycle();
             context = null;
         }
         public void Play()
@@ -139,7 +140,7 @@ namespace WooTween
         public void ReStart()
         {
             //ResetActorsPercent();
-            context.SetTimeScale(timeScale);
+            context?.SetTimeScale(timeScale);
             context?.ReStart();
         }
 

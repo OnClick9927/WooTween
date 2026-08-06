@@ -7,61 +7,101 @@
  *History:        2018.11--
 *********************************************************************************/
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace WooTween
 {
     class ArrayBuffer<T>
     {
+        private const int InitialCapacity = 16;
+        private static readonly bool NeedsReferenceClearing = ContainsReferences(typeof(T));
+
         public T this[int index]
         {
             get { return values[index]; }
             set { values[index] = value; }
         }
         private T[] values;
-        private int capcity => values.Length;
-        private int length = 16;
+        private int length;
         public int Length => length;
+
         public ArrayBuffer()
         {
-            //capcity = length;
-            values = new T[length];
+            values = new T[InitialCapacity];
         }
-        private void ValidArray(int length)
+
+        private static bool ContainsReferences(Type type)
         {
-            var capcity = this.capcity;
-            while (capcity < length)
-                capcity *= 2;
+            if (type.IsPointer)
+                return false;
+            if (!type.IsValueType)
+                return true;
+            if (type.IsPrimitive || type.IsEnum)
+                return false;
 
-            T[] result = new T[capcity];
-
-            Array.Copy(values, 0, result, 0, this.capcity);
-            this.values = result;
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (ContainsReferences(fields[i].FieldType))
+                    return true;
+            }
+            return false;
         }
 
+        private void EnsureCapacity(int requiredLength)
+        {
+            if (requiredLength <= values.Length)
+                return;
+
+            var capacity = values.Length;
+            while (capacity < requiredLength)
+                capacity *= 2;
+
+            var result = new T[capacity];
+            Array.Copy(values, 0, result, 0, length);
+            values = result;
+        }
+
+        public void Clear()
+        {
+            if (NeedsReferenceClearing && length > 0)
+                Array.Clear(values, 0, length);
+            length = 0;
+        }
 
         public bool IsSameArray(T[] points)
         {
+            if (points == null || points.Length != length)
+                return false;
+
+            var comparer = EqualityComparer<T>.Default;
             for (int i = 0; i < length; i++)
             {
-                if (!this.values[i].Equals(points[i]))
-                {
+                if (!comparer.Equals(values[i], points[i]))
                     return false;
-                }
             }
             return true;
         }
+
         public void Read(T[] points, bool reverse = false)
         {
-            //var _points_length = points.Length;
+            var previousLength = length;
+            EnsureCapacity(points.Length);
             length = points.Length;
-            ValidArray(length);
-            for (int i = 0; i < length; i++)
+
+            if (reverse)
             {
-                if (reverse)
-                    this.values[i] = points[length - 1 - i];
-                else
-                    this.values[i] = points[i];
+                for (int i = 0; i < length; i++)
+                    values[i] = points[length - 1 - i];
             }
+            else
+            {
+                Array.Copy(points, 0, values, 0, length);
+            }
+
+            if (NeedsReferenceClearing && previousLength > length)
+                Array.Clear(values, length, previousLength - length);
         }
     }
 
