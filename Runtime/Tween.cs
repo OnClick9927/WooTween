@@ -100,15 +100,21 @@ namespace WooTween
 
 
 
-        private static Dictionary<string, object> samples = new Dictionary<string, object>();
+        private static class SampleCache<T, Target>
+        {
+            internal static readonly string Id = $"sample_{typeof(T)}_{typeof(Target)}";
+            internal static ITweenContext<T, Target> Context;
+        }
+
         private static ITweenContext<T, Target> GetSample<T, Target>()
         {
-            var key = $"sample_{typeof(T)}_{typeof(Target)}";
-            if (samples.TryGetValue(key, out var obj))
-                return obj as ITweenContext<T, Target>;
+            var context = SampleCache<T, Target>.Context;
+            if (context != null)
+                return context;
+
             var allocate = Allocate<T, Target>(false);
-            allocate.SetId(key);
-            samples[key] = allocate;
+            allocate.SetId(SampleCache<T, Target>.Id);
+            SampleCache<T, Target>.Context = allocate;
             return allocate;
         }
         public static void Sample<T, Target>(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, bool snap, float progress)
@@ -116,14 +122,14 @@ namespace WooTween
             var context = GetSample<T, Target>();
             var ins = context.AsInstance();
             ins.Config(target, start, end, duration, getter, setter, snap);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
         public static void SampleWait(float duration, float progress)
         {
             var context = GetSample<float, System.Object>();
             var ins = context.AsInstance();
             ins.WaitConfig(duration);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
         public static void SampleShake<T, Target>(Target target, T start, T end, float duration,
             Func<Target, T> getter, Action<Target, T> setter, T strength,
@@ -132,7 +138,7 @@ namespace WooTween
             var context = GetSample<T, Target>();
             var ins = context.AsInstance();
             ins.ShakeConfig(target, start, end, duration, getter, setter, snap, strength, frequency, dampingRatio);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
         public static void SamplePunch<T, Target>(Target target, T start, T end, float duration, Func<Target, T> getter, Action<Target, T> setter, T strength,
 int frequency = 10, float dampingRatio = 1, bool snap = false, float progress = 1)
@@ -140,7 +146,7 @@ int frequency = 10, float dampingRatio = 1, bool snap = false, float progress = 
             var context = GetSample<T, Target>();
             var ins = context.AsInstance();
             ins.PunchConfig(target, start, end, duration, getter, setter, snap, strength, frequency, dampingRatio);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
         public static void SampleJump<T, Target>(Target target, T start, T end, float duration,
             Func<Target, T> getter, Action<Target, T> setter, T strength,
@@ -149,7 +155,7 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
             var context = GetSample<T, Target>();
             var ins = context.AsInstance();
             ins.JumpConfig(target, start, end, duration, getter, setter, snap, strength, jumpCount, jumpDamping);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
         public static void SampleArray<T, Target>(Target target, float duration,
     Func<Target, T> getter, Action<Target, T> setter, T[] points, bool snap = false , float progress = 1)
@@ -157,7 +163,7 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
             var context = GetSample<T, Target>();
             var ins = context.AsInstance();
             ins.ArrayConfig(target, duration, getter, setter, snap, points);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
         public static void SampleBezier<T, Target>(Target target, float duration, 
             Func<Target, T> getter, Action<Target, T> setter, T[] points, bool snap = false, float progress = 1)
@@ -165,7 +171,7 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
             var context = GetSample<T, Target>();
             var ins = context.AsInstance();
             ins.BezierConfig(target, duration, getter, setter, snap, points);
-            ins.Sample(progress * duration);
+            ins.SampleOnce(progress * duration);
         }
 
 
@@ -179,8 +185,17 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
         internal static event Action<ITweenContext> onContextAllocate, onContextRecycle;
         internal static void RecycleContext(ITweenContext context)
         {
-            Tween.GetScheduler().CycleContext(context);
+            if (!Tween.GetScheduler().CycleContext(context))
+                return;
+            NotifyContextRecycle(context);
+        }
+        internal static void NotifyContextRecycle(ITweenContext context)
+        {
             onContextRecycle?.Invoke(context);
+        }
+        internal static void DetachContext(ITweenContext context)
+        {
+            Tween.GetScheduler().DetachContext(context);
         }
 
         internal static ITweenContext<T, Target> Allocate<T, Target>(bool autoRun)
@@ -206,15 +221,30 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
 
         public static T ReStart<T>(this T context) where T : ITweenContext
         {
-            if (!(context as IPoolObject).valid)
+            var contextBase = context.AsContextBase();
+            if (!contextBase.valid || contextBase.recyclePending)
             {
                 Debug.LogError($"The {context} have be in pool,{nameof(context.autoCycle)}:{context.autoCycle}");
             }
             else
             {
-
-                context.Stop();
-                context.Run();
+                var autoCycle = contextBase.autoCycle;
+                contextBase.SetAutoCycle(false);
+                try
+                {
+                    contextBase.Stop();
+                    context.Run();
+                }
+                finally
+                {
+                    if (contextBase.valid)
+                    {
+                        contextBase.SetAutoCycle(autoCycle);
+                        if (autoCycle && !contextBase.recyclePending &&
+                            (contextBase.canceled || contextBase.isDone))
+                            contextBase.Recycle();
+                    }
+                }
             }
             return context;
         }
@@ -281,9 +311,17 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
         public static T Run<T>(this T t) where T : ITweenContext
         {
             var _base = t.AsContextBase();
+            if (!_base.valid || _base.recyclePending)
+            {
+                Debug.LogError($"The {t} have be in pool");
+                return t;
+            }
 
-            t.AsContextBase().Run();
-            Tween.GetScheduler().AddToRun(t);
+            _base.Run();
+            if (_base.valid && !_base.recyclePending &&
+                (_base.state == TweenContextState.Run || _base.state == TweenContextState.Pause) &&
+                !_base.canceled && !_base.isDone)
+                Tween.GetScheduler().AddToRun(t);
             return t;
         }
         public static T OnComplete<T>(this T t, Action<ITweenContext> action) where T : ITweenContext
@@ -337,8 +375,12 @@ int jumpCount = 5, float jumpDamping = 2f, bool snap = false, float progress = 1
             t.AsInstance().SetEvaluator(evaluator);
             return t;
         }
-        public static ITweenContext<T, Target> SetEase<T, Target>(this ITweenContext<T, Target> t, Ease ease) => t.SetEvaluator(new EaseEvaluator(ease));
-        public static ITweenContext<T, Target> SetAnimationCurve<T, Target>(this ITweenContext<T, Target> t, AnimationCurve curve) => t.SetEvaluator(new AnimationCurveEvaluator(curve));
+        public static ITweenContext<T, Target> SetEase<T, Target>(this ITweenContext<T, Target> t, Ease ease) => t.SetEvaluator(EaseEvaluator.Get(ease));
+        public static ITweenContext<T, Target> SetAnimationCurve<T, Target>(this ITweenContext<T, Target> t, AnimationCurve curve)
+        {
+            t.AsInstance().SetAnimationCurve(curve);
+            return t;
+        }
         public static ITweenContext<T, Target> SetSnap<T, Target>(this ITweenContext<T, Target> t, bool value)
         {
             t.AsInstance().SetSnap(value);

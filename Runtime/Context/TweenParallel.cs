@@ -17,24 +17,31 @@ namespace WooTween
     {
         public List<Func<ITweenContext>> list = new List<Func<ITweenContext>>();
         private List<ITweenContext> contexts = new List<ITweenContext>();
+        private List<ITweenContext> rewindContexts = new List<ITweenContext>();
+        private bool currentIsRewindLoop;
         public override float GetPercent()
         {
-            float result = 0;
+            if (contexts.Count == 0)
+                return isDone ? 1f : 0f;
+
+            float result = 1f;
 
             for (int i = 0; i < contexts.Count; i++)
             {
-                result = Mathf.Min(result, contexts[i].GetPercent());
+                var context = contexts[i];
+                var contextBase = context.AsContextBase();
+                if (context.isDone || contextBase.canceled)
+                    continue;
+                result = Mathf.Min(result, context.GetPercent());
             }
 
             return result;
         }
         protected override void OnRewind()
         {
-            for (int i = 0; i < contexts.Count; i++)
-            {
-
-                contexts[i].Rewind();
-            }
+            RewindChildren(contexts);
+            if (!currentIsRewindLoop)
+                RewindChildren(rewindContexts);
         }
         public ITweenGroup NewContext(Func<ITweenContext> func)
         {
@@ -48,30 +55,32 @@ namespace WooTween
             {
                 var context = contexts[i];
                 context.Stop();
+                Tween.DetachContext(context);
             }
         }
 
         protected override void Reset()
         {
+            ReleaseAllChildren();
             base.Reset();
             loops = 1;
             this._time = this._delta = -1;
             list.Clear();
-            contexts.Clear();
+            completedContexts = 0;
         }
         private int _loops = 0;
         private int loops = 1;
+        private int completedContexts;
         public void SetLoops(int loops)
         {
             this.loops = loops;
         }
         private void OnContextEnd(ITweenContext context)
         {
-
+            Tween.DetachContext(context);
             if (canceled || isDone) return;
-            if (contexts.Count > 0)
-                contexts.Remove(context);
-            if (contexts.Count == 0)
+            completedContexts++;
+            if (completedContexts >= contexts.Count)
             {
                 _loops++;
                 if (loops == -1 || _loops < loops)
@@ -93,22 +102,80 @@ namespace WooTween
 
         private void OnceLoop()
         {
-            contexts.Clear();
+            PrepareLoop();
+            completedContexts = 0;
             for (int i = 0; i < list.Count; i++)
             {
                 var func = list[i];
                 var context = func.Invoke();
+                if (context == null)
+                    continue;
+                context.SetAutoCycle(false);
                 context.OnCancel(OnContextEnd);
                 context.OnComplete(OnContextEnd);
                 context.OnTick(_OnTick);
                 context.SetTimeScale(timeScale);
                 contexts.Add(context);
+                if (currentIsRewindLoop)
+                    rewindContexts.Add(context);
             }
+            if (contexts.Count == 0)
+                Complete();
+        }
+
+        private void PrepareLoop()
+        {
+            if (_loops == 0)
+            {
+                currentIsRewindLoop = true;
+                return;
+            }
+
+            if (!currentIsRewindLoop)
+                ReleaseChildren(contexts);
+            contexts.Clear();
+            currentIsRewindLoop = false;
+        }
+
+        private static void RewindChildren(List<ITweenContext> children)
+        {
+            for (int i = children.Count - 1; i >= 0; i--)
+            {
+                var context = children[i];
+                var contextBase = context.AsContextBase();
+                if (contextBase.valid && !contextBase.recyclePending)
+                    context.Rewind();
+            }
+        }
+
+        private static void ReleaseChildren(List<ITweenContext> children)
+        {
+            for (int i = 0; i < children.Count; i++)
+            {
+                var context = children[i];
+                var contextBase = context.AsContextBase();
+                if (!contextBase.valid || contextBase.recyclePending)
+                    continue;
+
+                Tween.DetachContext(context);
+                context.Recycle();
+            }
+        }
+
+        private void ReleaseAllChildren()
+        {
+            ReleaseChildren(contexts);
+            ReleaseChildren(rewindContexts);
+            contexts.Clear();
+            rewindContexts.Clear();
+            currentIsRewindLoop = false;
         }
         public override void Run()
         {
+            ReleaseAllChildren();
             base.Run();
             _loops = 0;
+            this._time = this._delta = -1;
             if (list.Count <= 0)
                 Complete();
             else

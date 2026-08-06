@@ -13,9 +13,44 @@ namespace WooTween
 {
     struct EaseEvaluator : IValueEvaluator
     {
-        public static EaseEvaluator Default = new EaseEvaluator(Ease.Linear);
+        private static readonly IValueEvaluator[] CachedEvaluators =
+        {
+            new EaseEvaluator(Ease.Linear),
+            new EaseEvaluator(Ease.InSine),
+            new EaseEvaluator(Ease.OutSine),
+            new EaseEvaluator(Ease.InOutSine),
+            new EaseEvaluator(Ease.InQuad),
+            new EaseEvaluator(Ease.OutQuad),
+            new EaseEvaluator(Ease.InOutQuad),
+            new EaseEvaluator(Ease.InCubic),
+            new EaseEvaluator(Ease.OutCubic),
+            new EaseEvaluator(Ease.InOutCubic),
+            new EaseEvaluator(Ease.InQuart),
+            new EaseEvaluator(Ease.OutQuart),
+            new EaseEvaluator(Ease.InOutQuart),
+            new EaseEvaluator(Ease.InQuint),
+            new EaseEvaluator(Ease.OutQuint),
+            new EaseEvaluator(Ease.InOutQuint),
+            new EaseEvaluator(Ease.InExpo),
+            new EaseEvaluator(Ease.OutExpo),
+            new EaseEvaluator(Ease.InOutExpo),
+            new EaseEvaluator(Ease.InCirc),
+            new EaseEvaluator(Ease.OutCirc),
+            new EaseEvaluator(Ease.InOutCirc),
+        };
+
+        public static readonly IValueEvaluator Default = CachedEvaluators[(int)Ease.Linear];
         public Ease ease;
         public EaseEvaluator(Ease ease) => this.ease = ease;
+
+        public static IValueEvaluator Get(Ease ease)
+        {
+            var index = (int)ease;
+            if (index < 0 || index >= CachedEvaluators.Length)
+                return Default;
+            return CachedEvaluators[index];
+        }
+
         private static float Evaluate(Ease easeType, float time, float duration)
         {
             float percent = Mathf.Clamp01((time / duration));

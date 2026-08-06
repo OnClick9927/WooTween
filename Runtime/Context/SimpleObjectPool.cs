@@ -23,16 +23,15 @@ namespace WooTween
     }
     class SimpleObjectPool<T> : ISimpleObjectPool where T : class, new()
     {
-
+        private readonly Stack<T> pool = new Stack<T>();
 
         public void SetObject(object context)
         {
-            if (!(context is T))
-            {
-                //Log.FE($"{nameof(context)} is not {typeof(T)} is {context.GetType()}");
+            var value = context as T;
+            if (value == null)
                 return;
-            }
-            this.Set(context as T);
+
+            Set(value);
         }
 
         private T CreateNew()
@@ -40,9 +39,6 @@ namespace WooTween
             return new T();
         }
 
-
-        private Queue<T> pool { get { return _lazy.Value; } }
-        private Lazy<Queue<T>> _lazy = new Lazy<Queue<T>>(() => { return new Queue<T>(); }, true);
 
         public  Type type { get { return typeof(T); } }
 
@@ -57,7 +53,7 @@ namespace WooTween
             T t;
             if (pool.Count > 0)
             {
-                t = pool.Dequeue();
+                t = pool.Pop();
             }
             else
             {
@@ -77,25 +73,25 @@ namespace WooTween
 
         public bool Set(T t)
         {
-            if (!pool.Contains(t))
+            if (t == null)
+                return false;
+
+            var poolObject = t as IPoolObject;
+            if (poolObject != null && !poolObject.valid)
+                return false;
+
+            if (OnSet(t))
             {
-                if (OnSet(t))
+                if (poolObject != null)
                 {
-                    if (t is IPoolObject)
-                    {
-                        IPoolObject obj = t as IPoolObject;
-                        obj.valid = false;
-                        obj.OnSet();
-                    }
-                    pool.Enqueue(t);
+                    poolObject.valid = false;
+                    poolObject.OnSet();
                 }
+                pool.Push(t);
                 return true;
             }
-            else
-            {
-                //Log.FE("Set Err: Exist " + type);
-                return false;
-            }
+
+            return false;
         }
 
 
@@ -103,7 +99,7 @@ namespace WooTween
         {
             while (pool.Count > 0)
             {
-                var t = pool.Dequeue();
+                var t = pool.Pop();
                 OnClear(t);
                 IDisposable dispose = t as IDisposable;
                 if (dispose != null)
